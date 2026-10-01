@@ -292,6 +292,16 @@
                 image: 'imagen/Maltaguajira.jpg',
                 description: 'Malta de 1500ml.'
             },
+             {
+                id: 32,
+                name: 'Carton De Huevo',
+                category: 'carnes',
+                price: 4100.00,
+                badge: 'Oferta',
+                badgeColor: 'bg-emerald-500',
+                image: 'imagen/huevo.jpg',
+                description: 'Incluye: 30 unidades de huevo frescos.'
+            },
            /* {
                 id: 31,
                 name: 'Combo Desayuno & Leche',
