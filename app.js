@@ -11,16 +11,16 @@
         ];
 
         const products = [
-            /*{
+            {
                 id: 1,
                 name: 'Combo Familiar Supremo',
                 category: 'combos',
                 price: 65.00,
                 badge: 'Más Vendido',
                 badgeColor: 'bg-amber-500',
-                image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80',
-                description: 'Incluye: 5lb Pollo, 3lb Cerdo, 2L Aceite, 5lb Arroz, 2lb Frijoles, 1 Arroba de Vianda variada.'
-            },*/
+                image: 'imagen/ComboSupremo.jpg',
+                description: 'Incluye: 11lb Pollo, 7lb Lomo deshuesado de Cerdo,1 carton de huevo(30), 2L Aceite, 5lb Arroz, 2lb Frijoles,2 espaguetis de (500gr),2 Pasta de tomate  .'
+            },
             {
                 id: 2,
                 name: 'Lomo deshuesado de cerdo',
