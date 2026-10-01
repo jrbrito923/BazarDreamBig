@@ -442,23 +442,36 @@ function renderProducts() {
         const isAgotado = product.badge && product.badge.toLowerCase() === 'agotado';
 
         return `
-            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
-                <div class="relative aspect-square overflow-hidden bg-slate-100">
-                    <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80';">
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between h-full group">
+                <!-- Contenedor de Imagen de Altura Fija (Aspecto 1:1 Cuadrado) -->
+                <div class="relative w-full aspect-square bg-slate-100 overflow-hidden flex-shrink-0">
+                    <img src="${product.image}" 
+                         alt="${product.name}" 
+                         loading="lazy"
+                         class="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80';">
                     ${product.badge ? `
-                        <span class="absolute top-2 left-2 text-[9px] sm:text-[10px] font-bold text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow ${product.badgeColor || 'bg-emerald-600'}">
+                        <span class="absolute top-2 left-2 text-[9px] sm:text-[10px] font-bold text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow z-10 ${product.badgeColor || 'bg-emerald-600'}">
                             ${product.badge}
                         </span>
                     ` : ''}
                 </div>
+
+                <!-- Cuerpo de la Tarjeta con Distribución Homogénea -->
                 <div class="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-xs sm:text-base leading-snug mb-1 line-clamp-2">${product.name}</h3>
-                        <p class="text-[11px] sm:text-xs text-slate-500 line-clamp-2 mb-2 sm:mb-3">${product.description}</p>
+                        <!-- Título con altura máxima fija (2 líneas) -->
+                        <h3 class="font-bold text-slate-900 text-xs sm:text-base leading-snug mb-1 line-clamp-2 h-[2.5em] sm:h-[2.8em] overflow-hidden">
+                            ${product.name}
+                        </h3>
+                        <!-- Descripción con altura fija (2 líneas) -->
+                        <p class="text-[10px] sm:text-xs text-slate-500 line-clamp-2 mb-2 sm:mb-3 h-[2.4em] sm:h-[2.8em] overflow-hidden">
+                            ${product.description}
+                        </p>
                     </div>
 
-                    <div>
-                        <!-- Área de precio optimizada para evitar desbordamientos en móvil -->
+                    <div class="mt-auto">
+                        <!-- Precio Alineado -->
                         <div class="flex items-center justify-between gap-1 mb-2 sm:mb-3">
                             <span class="text-[10px] sm:text-xs text-slate-400 uppercase font-medium">Precio</span>
                             <span class="text-xs sm:text-sm md:text-base font-black text-slate-900 truncate text-right">
@@ -466,6 +479,7 @@ function renderProducts() {
                             </span>
                         </div>
 
+                        <!-- Botón de Acción -->
                         ${isAgotado ? `
                             <button disabled class="w-full bg-slate-200 text-slate-400 text-[11px] sm:text-xs font-bold py-2 px-2 sm:px-4 rounded-xl cursor-not-allowed">
                                 Agotado
