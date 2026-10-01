@@ -443,15 +443,15 @@ function renderProducts() {
 
         return `
             <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between h-full group">
-                <!-- Contenedor con efecto Skeleton (animate-pulse) mientras carga la imagen -->
-                <div class="relative w-full aspect-square bg-slate-200 animate-pulse overflow-hidden flex-shrink-0">
+                <!-- Contenedor con fondo Skeleton personalizado -->
+                <div class="relative w-full aspect-square skeleton-bg overflow-hidden flex-shrink-0">
                     <img src="${product.image}" 
                          alt="${product.name}" 
                          loading="${index < 4 ? 'eager' : 'lazy'}"
                          decoding="async"
-                         onload="this.parentElement.classList.remove('animate-pulse', 'bg-slate-200')"
-                         class="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
-                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'; this.parentElement.classList.remove('animate-pulse');">
+                         onload="this.classList.remove('opacity-0'); this.parentElement.classList.remove('skeleton-bg');"
+                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'; this.classList.remove('opacity-0'); this.parentElement.classList.remove('skeleton-bg');"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-0">
                     
                     ${product.badge ? `
                         <span class="absolute top-2 left-2 text-[9px] sm:text-[10px] font-bold text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow z-10 ${product.badgeColor || 'bg-emerald-600'}">

@@ -18,6 +18,15 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; background-color: #e2e8f0; }
+    50% { opacity: 0.5; background-color: #cbd5e1; }
+  }
+  .skeleton-bg {
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
+  }
+</style>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
