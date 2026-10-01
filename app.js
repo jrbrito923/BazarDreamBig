@@ -443,40 +443,43 @@ function renderProducts() {
 
         return `
             <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between group">
-                <div class="relative aspect-video sm:aspect-square overflow-hidden bg-slate-100">
+                <div class="relative aspect-square overflow-hidden bg-slate-100">
                     <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80';">
                     ${product.badge ? `
-                        <span class="absolute top-3 left-3 text-[10px] font-bold text-white px-2.5 py-1 rounded-full shadow ${product.badgeColor || 'bg-emerald-600'}">
+                        <span class="absolute top-2 left-2 text-[9px] sm:text-[10px] font-bold text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow ${product.badgeColor || 'bg-emerald-600'}">
                             ${product.badge}
                         </span>
                     ` : ''}
                 </div>
-                <div class="p-4 flex-1 flex flex-col justify-between">
+                <div class="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-base leading-snug mb-1">${product.name}</h3>
-                        <p class="text-xs text-slate-500 line-clamp-2 mb-3">${product.description}</p>
+                        <h3 class="font-bold text-slate-900 text-xs sm:text-base leading-snug mb-1 line-clamp-2">${product.name}</h3>
+                        <p class="text-[11px] sm:text-xs text-slate-500 line-clamp-2 mb-2 sm:mb-3">${product.description}</p>
                     </div>
 
                     <div>
-                        <div class="flex items-baseline justify-between mb-3">
-                            <span class="text-xs text-slate-400 uppercase font-medium">Precio</span>
-                            <span class="text-xl font-black text-slate-900">${formatPrice(product.price, product.currency)}</span>
+                        <!-- Área de precio optimizada para evitar desbordamientos en móvil -->
+                        <div class="flex items-center justify-between gap-1 mb-2 sm:mb-3">
+                            <span class="text-[10px] sm:text-xs text-slate-400 uppercase font-medium">Precio</span>
+                            <span class="text-xs sm:text-sm md:text-base font-black text-slate-900 truncate text-right">
+                                ${formatPrice(product.price, product.currency)}
+                            </span>
                         </div>
 
                         ${isAgotado ? `
-                            <button disabled class="w-full bg-slate-200 text-slate-400 text-xs font-bold py-2.5 px-4 rounded-xl cursor-not-allowed">
-                                Producto Agotado
+                            <button disabled class="w-full bg-slate-200 text-slate-400 text-[11px] sm:text-xs font-bold py-2 px-2 sm:px-4 rounded-xl cursor-not-allowed">
+                                Agotado
                             </button>
                         ` : quantityInCart > 0 ? `
-                            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-1">
-                                <button onclick="updateQuantity(${product.id}, -1)" class="w-8 h-8 rounded-lg bg-white text-emerald-700 shadow-sm font-bold flex items-center justify-center hover:bg-emerald-100 transition">-</button>
-                                <span class="font-bold text-sm text-emerald-900">${quantityInCart} en carrito</span>
-                                <button onclick="updateQuantity(${product.id}, 1)" class="w-8 h-8 rounded-lg bg-emerald-600 text-white shadow-sm font-bold flex items-center justify-center hover:bg-emerald-700 transition">+</button>
+                            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-0.5 sm:p-1">
+                                <button onclick="updateQuantity(${product.id}, -1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white text-emerald-700 shadow-sm font-bold flex items-center justify-center hover:bg-emerald-100 transition text-xs sm:text-sm">-</button>
+                                <span class="font-bold text-xs sm:text-sm text-emerald-900 px-1">${quantityInCart}</span>
+                                <button onclick="updateQuantity(${product.id}, 1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-600 text-white shadow-sm font-bold flex items-center justify-center hover:bg-emerald-700 transition text-xs sm:text-sm">+</button>
                             </div>
                         ` : `
-                            <button onclick="addToCart(${product.id})" class="w-full bg-slate-900 hover:bg-emerald-600 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow transition duration-200 flex items-center justify-center gap-2">
-                                <i data-lucide="plus" class="w-4 h-4"></i>
-                                <span>Agregar al Pedido</span>
+                            <button onclick="addToCart(${product.id})" class="w-full bg-slate-900 hover:bg-emerald-600 text-white text-[11px] sm:text-xs font-bold py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl shadow transition duration-200 flex items-center justify-center gap-1.5">
+                                <i data-lucide="plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                                <span>Agregar</span>
                             </button>
                         `}
                     </div>
