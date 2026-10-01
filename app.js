@@ -332,9 +332,15 @@ const products = [
     }
 ];
 
-let cart = [];
+// Cargar el carrito guardado en localStorage al iniciar la aplicación
+let cart = JSON.parse(localStorage.getItem('bazar_cart')) || [];
 let currentCategory = 'all';
 let searchQuery = '';
+
+// Guardar los datos del carrito en el navegador del usuario
+function saveCart() {
+    localStorage.setItem('bazar_cart', JSON.stringify(cart));
+}
 
 function normalizeText(text) {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
@@ -493,6 +499,7 @@ function addToCart(productId) {
         cart.push({ ...product, quantity: 1 });
     }
 
+    saveCart();
     updateCartUI();
     renderProducts();
 }
@@ -505,6 +512,7 @@ function updateQuantity(productId, change) {
             cart.splice(index, 1);
         }
     }
+    saveCart();
     updateCartUI();
     renderProducts();
 }
@@ -584,7 +592,6 @@ function toggleCartModal(open) {
     }
 }
 
-// Función activada por onclick="sendOrderWhatsApp()" en el HTML
 function sendOrderWhatsApp() {
     if (cart.length === 0) {
         alert("Por favor, agrega al menos un producto al pedido antes de continuar.");
@@ -621,8 +628,6 @@ function sendOrderWhatsApp() {
     message += `📋 *DETALLE DEL PEDIDO:*\n\n`;
 
     cart.forEach((item, index) => {
-        const sub = (item.price * item.quantity).toFixed(2);
-        const curr = item.currency || 'CUP';
         message += `${index + 1}. *${item.name}*\n   ${item.quantity}x @ ${formatPrice(item.price, item.currency)} = *${formatPrice(item.price * item.quantity, item.currency)}*\n`;
     });
 
@@ -635,6 +640,12 @@ function sendOrderWhatsApp() {
     if (totalUSD > 0) message += `\n- $${totalUSD.toFixed(2)} USD`;
     message += `\n-----------------------------------\n`;
     message += `Por favor, confirmemos disponibilidad y método de pago para completar el envío. ¡Gracias!`;
+
+    // Vaciar el carrito tras el envío si el usuario lo confirma
+    cart = [];
+    saveCart();
+    updateCartUI();
+    renderProducts();
 
     const encodedUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(encodedUrl, '_blank');
