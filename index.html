@@ -3,28 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazar Drem Big - Tienda en Línea</title>
-    <!-- Directivas para evitar caché en los navegadores de los clientes -->
+    <title>Bazar Dream Big - Tienda en Línea</title>
+    
+    <!-- SEO y Meta Etiquetas para Vista Previa en WhatsApp/Redes -->
+    <meta name="description" content="Tu tienda en línea de confianza. Haz tu pedido fácil y rápido con envío directo a tu hogar.">
+    <meta property="og:title" content="Bazar Dream Big - Tienda en Línea">
+    <meta property="og:description" content="Realiza tu pedido fácilmente y confirma por WhatsApp. ¡Envíos directos!">
+    <meta property="og:type" content="website">
+
+    <!-- Directivas para evitar caché -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
-    
+
     <!-- Header Principal -->
     <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            <!-- Logo / Nombre de la Tienda -->
+            <!-- Logo / Nombre de la Tienda (Corregido 'Dream') -->
             <div class="flex items-center gap-2">
                 <div class="bg-emerald-600 text-white p-2 rounded-xl shadow">
                     <i data-lucide="store" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h1 class="font-black text-lg sm:text-xl text-slate-900 leading-none">BAZAR Drem Big</h1>
+                    <h1 class="font-black text-lg sm:text-xl text-slate-900 leading-none">BAZAR Dream Big</h1>
                     <p class="text-[10px] text-slate-500 font-medium">Tu tienda de confianza</p>
                 </div>
             </div>
@@ -32,7 +40,7 @@
             <!-- Buscador (Desktop / Tablet) -->
             <div class="hidden sm:flex flex-1 max-w-md relative">
                 <input type="text" id="searchInput" placeholder="Buscar productos (ej. arroz, carne, cerveza)..." 
-                    class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                       class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
                 <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
                 <button id="clearSearch" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
                     <i data-lucide="x" class="w-4 h-4"></i>
@@ -47,13 +55,12 @@
                 <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-emerald-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow">0</span>
             </button>
         </div>
-    
 
         <!-- Buscador Móvil -->
         <div class="sm:hidden px-4 pb-3">
             <div class="relative">
                 <input type="text" id="searchInputMobile" placeholder="Buscar productos..." 
-                    class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                       class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
                 <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
             </div>
         </div>
@@ -61,25 +68,25 @@
 
     <!-- Contenido Principal -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-<!-- Contenedor Sticky corregido para Móvil y PC -->
-<div class="sticky top-[105px] sm:top-[64px] z-20 bg-slate-50/95 backdrop-blur-md py-3 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b border-slate-200/60 shadow-sm transition-all">
-    <div class="max-w-7xl mx-auto overflow-x-auto overflow-y-hidden no-scrollbar touch-pan-x">
-        <div id="categoryChips" class="flex gap-2 min-w-max">
-            <!-- Se genera dinámicamente con JS -->
+        <!-- Contenedor Sticky de Categorías -->
+        <div class="sticky top-[105px] sm:top-[64px] z-20 bg-slate-50/95 backdrop-blur-md py-3 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b border-slate-200/60 shadow-sm transition-all">
+            <div class="max-w-7xl mx-auto overflow-x-auto overflow-y-hidden no-scrollbar touch-pan-x">
+                <div id="categoryChips" class="flex gap-2 min-w-max">
+                    <!-- Dinámico por JS -->
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <!-- Título y Contador -->
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center justify-between mb-4 mt-4">
             <h2 id="currentCategoryTitle" class="text-lg sm:text-xl font-bold text-slate-900">Todos los Productos</h2>
             <span id="productCount" class="text-xs text-slate-500 font-medium">Mostrando 0 productos</span>
         </div>
 
-       <!-- CÓDIGO CORREGIDO (2 columnas en móvil) -->
-<div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
-    <!-- Cards generadas por JS -->
-</div>
+        <!-- Grid de Productos -->
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
+            <!-- Cards generadas por JS -->
+        </div>
 
         <!-- Estado Sin Resultados -->
         <div id="noResults" class="hidden text-center py-16">
@@ -93,7 +100,6 @@
 
     <!-- Modal Drawer del Carrito -->
     <div id="cartModal" class="hidden fixed inset-0 z-50 overflow-hidden">
-        <!-- Overlay oscuro -->
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="toggleCartModal(false)"></div>
 
         <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
@@ -109,12 +115,12 @@
                     </button>
                 </div>
 
-                <!-- Cuerpo: Lista de Ítems -->
+                <!-- Cuerpo: Ítems -->
                 <div class="flex-1 overflow-y-auto p-4 divide-y divide-slate-100" id="cartItemsContainer">
-                    <!-- Ítems del carrito insertados por JS -->
+                    <!-- Insertados por JS -->
                 </div>
 
-                <!-- Formulario de Entrega y Totales -->
+                <!-- Formulario y Totales -->
                 <div class="p-4 border-t border-slate-200 bg-slate-50 space-y-3">
                     <div class="space-y-1.5">
                         <span class="text-xs font-bold text-slate-700 uppercase">Datos para el Envío</span>
@@ -124,6 +130,14 @@
                             <input type="text" id="clientLocation" placeholder="Municipio / Zona *" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
                         </div>
                         <input type="text" id="clientAddress" placeholder="Dirección Exacta *" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                        
+                        <!-- Método de Pago Seleccionable -->
+                        <select id="paymentMethod" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 text-slate-700 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                            <option value="Efectivo al recibir">Método de pago: Efectivo al recibir</option>
+                            <option value="Transferencia (CUP / MLC)">Método de pago: Transferencia (CUP / MLC)</option>
+                            <option value="USD en efectivo">Método de pago: USD en efectivo</option>
+                        </select>
+
                         <input type="text" id="clientNotes" placeholder="Notas adicionales (opcional)" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
                     </div>
 
@@ -132,6 +146,7 @@
                             <span>Subtotal</span>
                             <span id="cartSubtotal" class="font-medium">$0.00</span>
                         </div>
+                        <p class="text-[11px] text-amber-600 font-medium leading-tight">* El costo de envío se confirmará vía WhatsApp según la ubicación.</p>
                         <div class="flex justify-between text-base font-black text-slate-900 pt-1">
                             <span>Total Estimado</span>
                             <span id="cartTotal" class="text-emerald-600">$0.00</span>
@@ -146,19 +161,23 @@
             </div>
         </div>
     </div>
-   
-    <!-- Script Principal JavaScript -->
-    <script src="app.js"> </script>
-</body>
-<footer > <!-- Banner Promocional de WhatsApp --> <!-- Sección de Contador de Visitas -->
-        <div class="bg-emerald-600 text-white text-xs sm:text-sm font-medium py-2.5 px-4 text-center flex items-center justify-center gap-2 shadow-sm">
-        <i data-lucide="message-circle" class="w-4 h-4"></i>
-        <span>📱 Realiza tu pedido fácilmente y confirma por WhatsApp. ¡Envíos directos!</span>
-        <i data-lucide="eye" class="w-4 h-4 text-emerald-600"></i>
-    <span>Visitas:</span>
-    <span id="visitCount" font-bold">Cargando...</span>
-    </div>
-</footer>
-    
 
+    <!-- Footer Mejorado -->
+    <footer class="mt-auto bg-slate-900 text-slate-300">
+        <div class="bg-emerald-600 text-white text-xs sm:text-sm font-medium py-2.5 px-4 text-center flex items-center justify-center gap-2">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            <span>Realiza tu pedido fácilmente y confirma por WhatsApp. ¡Envíos directos!</span>
+        </div>
+        <div class="max-w-7xl mx-auto py-3 px-4 flex justify-between items-center text-xs text-slate-400">
+            <span>&copy; 2026 BAZAR Dream Big. Todos los derechos reservados.</span>
+            <div class="flex items-center gap-1.5 bg-slate-800 px-3 py-1 rounded-full">
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Visitas:</span>
+                <span id="visitCount" class="font-bold text-white">Cargando...</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
 </html>
