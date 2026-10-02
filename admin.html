@@ -92,17 +92,14 @@
     </div>
 
    <script>
-        // 1. TUS CREDENCIALES
         const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; // Reemplaza con tu URL real
-        const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Reemplaza con tu llave real
+        const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Reemplaza con tu llave anon real
         const ADMIN_PASSWORD = "1234";
 
-        // Usamos una propiedad en window para evitar cualquier conflicto de variables globales
         window.spClient = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                // Inicializamos utilizando la librería global window.supabase
                 if (window.supabase && typeof window.supabase.createClient === 'function') {
                     window.spClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 } else {
@@ -112,16 +109,11 @@
                 console.error("Error inicializando Supabase:", e.message);
             }
 
-            // Escuchadores de eventos
             const loginBtn = document.getElementById('loginBtn');
-            if (loginBtn) {
-                loginBtn.addEventListener('click', checkPass);
-            }
+            if (loginBtn) loginBtn.addEventListener('click', checkPass);
 
             const productForm = document.getElementById('productForm');
-            if (productForm) {
-                productForm.addEventListener('submit', saveProduct);
-            }
+            if (productForm) productForm.addEventListener('submit', saveProduct);
         });
 
         function checkPass() {
@@ -154,16 +146,16 @@
 
                 const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
 
-                // Subir archivo a Supabase Storage
+                // --- ATENCIÓN: AHORA APUNTA AL BUCKET 'products' ---
                 const { data: imgData, error: imgError } = await window.spClient.storage
-                    .from('productos')
+                    .from('products')
                     .upload(fileName, file);
 
                 if (imgError) throw imgError;
 
-                // Obtener URL pública de la imagen
+                // Obtener URL pública
                 const { data: urlData } = window.spClient.storage
-                    .from('productos')
+                    .from('products')
                     .getPublicUrl(fileName);
 
                 const imageUrl = urlData.publicUrl;
