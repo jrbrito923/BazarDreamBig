@@ -9,7 +9,7 @@ const categories = [
     { id: 'combos', name: '🔥 Combos de Oferta' }
 ];
 // Configuración del cliente Supabase
-const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; // Reemplaza con tu URL
+const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co"; // Reemplaza con tu URL
 const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Reemplaza con tu clave anon
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
