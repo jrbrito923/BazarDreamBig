@@ -130,96 +130,92 @@ function selectCategory(catId) {
     if (titleElem) titleElem.innerText = catObj ? catObj.name : 'Productos';
 }
 
-function renderProducts() {
-    const grid = document.getElementById('productsGrid');
-    const noResults = document.getElementById('noResults');
-    if (!grid) return;
-
-    const filtered = products.filter(p => {
-        const matchesCategory = (currentCategory === 'all' || p.category === currentCategory);
-        const nameNorm = normalizeText(p.name);
-        const descNorm = normalizeText(p.description);
-        const matchesSearch = nameNorm.includes(searchQuery) || descNorm.includes(searchQuery);
-        return matchesCategory && matchesSearch;
-    });
-
-    const countElem = document.getElementById('productCount');
-    if (countElem) countElem.innerText = `Mostrando ${filtered.length} de ${products.length} productos`;
-
-    if (filtered.length === 0) {
-        grid.innerHTML = '';
-        if (noResults) noResults.classList.remove('hidden');
+// Función para renderizar los productos en la tienda
+function renderProducts(productsToRender = products) {
+    const grid = document.getElementById('productGrid');
+    
+    if (!grid) {
+        console.error("No se encontró el contenedor 'productGrid' en el DOM.");
         return;
     }
 
-    if (noResults) noResults.classList.add('hidden');
+    if (!productsToRender || productsToRender.length === 0) {
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-12 text-slate-400">
+                <p class="text-lg font-medium">No hay productos disponibles en esta categoría.</p>
+            </div>
+        `;
+        return;
+    }
 
-    grid.innerHTML = filtered.map((product, index) => {
-        const cartItem = cart.find(item => item.id === product.id);
-        const quantityInCart = cartItem ? cartItem.quantity : 0;
+    grid.innerHTML = productsToRender.map(product => {
+        // 1. Manejo dinámico de rutas de imágenes (GitHub Pages + Supabase Storage)
+        let imageUrl = product.image;
+        
+        if (!imageUrl) {
+            imageUrl = 'https://via.placeholder.com/300?text=Sin+Imagen';
+        } else if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+            // Si es una ruta relativa de GitHub (ej: "imagen/Combo.jpg"), asegura que no falte la barra si aplica
+            imageUrl = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
+        }
+
+        // 2. Manejo de estado "Agotado" u otras etiquetas
         const isAgotado = product.badge && product.badge.toLowerCase() === 'agotado';
+        const badgeColor = product.badge_color || (isAgotado ? 'bg-red-500' : 'bg-emerald-600');
 
         return `
-            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between h-full group">
-                <!-- Contenedor con fondo Skeleton personalizado -->
-                <div class="relative w-full aspect-square skeleton-bg overflow-hidden flex-shrink-0">
-                    <img src="${product.image}" 
-                         alt="${product.name}" 
-                         loading="${index < 4 ? 'eager' : 'lazy'}"
-                         decoding="async"
-                         onload="this.classList.remove('opacity-0'); this.parentElement.classList.remove('skeleton-bg');"
-                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'; this.classList.remove('opacity-0'); this.parentElement.classList.remove('skeleton-bg');"
-                         class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-0">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
+                <div class="relative">
+                    <!-- Imagen con respaldo si falla la carga -->
+                    <img 
+                        src="${imageUrl}" 
+                        alt="${product.name}" 
+                        class="w-full h-48 object-cover ${isAgotado ? 'grayscale opacity-75' : ''}"
+                        onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=Imagen+No+Disponible';"
+                    >
                     
+                    <!-- Insignia / Badge (Oferta, Agotado, Más Vendido, etc.) -->
                     ${product.badge ? `
-                        <span class="absolute top-2 left-2 text-[9px] sm:text-[10px] font-bold text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow z-10 ${product.badgeColor || 'bg-emerald-600'}">
+                        <span class="absolute top-3 right-3 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm ${badgeColor}">
                             ${product.badge}
                         </span>
                     ` : ''}
                 </div>
 
-                <!-- Detalles de la tarjeta -->
-                <div class="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
+                <div class="p-4 flex-1 flex flex-col justify-between">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-xs sm:text-base leading-snug mb-1 line-clamp-2 h-[2.5em] sm:h-[2.8em] overflow-hidden">
+                        <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-snug mb-1">
                             ${product.name}
                         </h3>
-                        <p class="text-[10px] sm:text-xs text-slate-500 line-clamp-2 mb-2 sm:mb-3 h-[2.4em] sm:h-[2.8em] overflow-hidden">
-                            ${product.description}
+                        <p class="text-xs text-slate-500 line-clamp-2 mb-3">
+                            ${product.description || 'Sin descripción disponible.'}
                         </p>
                     </div>
 
-                    <div class="mt-auto">
-                        <div class="flex items-center justify-between gap-1 mb-2 sm:mb-3">
-                            <span class="text-[10px] sm:text-xs text-slate-400 uppercase font-medium">Precio</span>
-                            <span class="text-xs sm:text-sm md:text-base font-black text-slate-900 truncate text-right">
-                                ${formatPrice(product.price, product.currency)}
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between mt-auto">
+                        <div>
+                            <span class="text-xs text-slate-400 block font-medium">Precio</span>
+                            <span class="text-lg font-black text-slate-900">
+                                $${product.price} <span class="text-xs font-bold text-emerald-600">${product.currency || 'CUP'}</span>
                             </span>
                         </div>
 
-                        ${isAgotado ? `
-                            <button disabled class="w-full bg-slate-200 text-slate-400 text-[11px] sm:text-xs font-bold py-2 px-2 sm:px-4 rounded-xl cursor-not-allowed">
-                                Agotado
-                            </button>
-                        ` : quantityInCart > 0 ? `
-                            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-0.5 sm:p-1">
-                                <button onclick="updateQuantity(${product.id}, -1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white text-emerald-700 shadow-sm font-bold flex items-center justify-center hover:bg-emerald-100 transition text-xs sm:text-sm">-</button>
-                                <span class="font-bold text-xs sm:text-sm text-emerald-900 px-1">${quantityInCart}</span>
-                                <button onclick="updateQuantity(${product.id}, 1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-600 text-white shadow-sm font-bold flex items-center justify-center hover:bg-emerald-700 transition text-xs sm:text-sm">+</button>
-                            </div>
-                        ` : `
-                            <button onclick="addToCart(${product.id})" class="w-full bg-slate-900 hover:bg-emerald-600 text-white text-[11px] sm:text-xs font-bold py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl shadow transition duration-200 flex items-center justify-center gap-1.5">
-                                <i data-lucide="plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
-                                <span>Agregar</span>
-                            </button>
-                        `}
+                        <!-- Botón Pedir por WhatsApp -->
+                        <button 
+                            onclick="sendWhatsAppOrder('${product.name}', ${product.price}, '${product.currency || 'CUP'}')"
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors ${isAgotado ? 'opacity-50 cursor-not-allowed' : ''}"
+                            ${isAgotado ? 'disabled' : ''}
+                        >
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/>
+                            </svg>
+                            <span class="hidden sm:inline">Pedir</span>
+                        </button>
                     </div>
                 </div>
             </div>
         `;
     }).join('');
-
-    if (window.lucide) lucide.createIcons();
 }
 
 function addToCart(productId) {
