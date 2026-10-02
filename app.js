@@ -8,6 +8,7 @@ const categories = [
     { id: 'bebidas', name: '🥤 Bebidas' },
     { id: 'combos', name: '🔥 Combos de Oferta' }
 ];
+
 // Configuración del cliente Supabase
 const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co"; 
 const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";
@@ -17,12 +18,19 @@ window.spClient = null;
 if (window.supabase && typeof window.supabase.createClient === 'function') {
     window.spClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
+
 // Arreglo de productos (se llenará desde la base de datos)
 let products = [];
 
 async function fetchProductsFromSupabase() {
     try {
-        const { data, error } = await supabase
+        if (!window.spClient) {
+            console.error("Cliente de Supabase no inicializado.");
+            return;
+        }
+
+        // --- CORRECCIÓN CLAVE: Se usa window.spClient en lugar de supabase ---
+        const { data, error } = await window.spClient
             .from('products')
             .select('*')
             .order('id', { ascending: true });
@@ -30,7 +38,6 @@ async function fetchProductsFromSupabase() {
         if (error) throw error;
 
         if (data) {
-            // Mapeamos los datos para adaptarlos al formato exacto de tu tienda
             products = data.map(p => ({
                 id: p.id,
                 name: p.name,
@@ -43,7 +50,7 @@ async function fetchProductsFromSupabase() {
                 description: p.description
             }));
 
-            // Dibujamos las tarjetas en pantalla con los datos recién obtenidos
+            // Dibujamos las tarjetas en pantalla cuando ya tenemos la información
             renderProducts();
         }
     } catch (err) {
@@ -51,20 +58,17 @@ async function fetchProductsFromSupabase() {
     }
 }
 
-
-
-// Cargar el carrito guardado en localStorage al iniciar la aplicación
+// Cargar el carrito guardado en localStorage
 let cart = JSON.parse(localStorage.getItem('bazar_cart')) || [];
 let currentCategory = 'all';
 let searchQuery = '';
 
-// Guardar los datos del carrito en el navegador del usuario
 function saveCart() {
     localStorage.setItem('bazar_cart', JSON.stringify(cart));
 }
 
 function normalizeText(text) {
-    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    return text ? text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : '';
 }
 
 function formatPrice(price, currency = 'CUP') {
@@ -72,10 +76,10 @@ function formatPrice(price, currency = 'CUP') {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    fetchProductsFromSupabase(); // <--- Carga los productos desde la nube
+    fetchProductsFromSupabase(); // Carga asíncrona desde Supabase
     renderCategories();
-    renderProducts();
     updateCartUI();
+    updateVisitCount();
     if (window.lucide) lucide.createIcons();
 
     const searchInput = document.getElementById('searchInput');
@@ -134,8 +138,8 @@ function selectCategory(catId) {
     if (titleElem) titleElem.innerText = catObj ? catObj.name : 'Productos';
 }
 
-// Función para renderizar los productos en la tienda
-function renderProducts(productsToRender = products) {
+// Renderizador con filtrado automático por Categoría y Búsqueda
+function renderProducts() {
     const grid = document.getElementById('productGrid');
     
     if (!grid) {
@@ -143,42 +147,43 @@ function renderProducts(productsToRender = products) {
         return;
     }
 
-    if (!productsToRender || productsToRender.length === 0) {
+    // Filtrar por categoría y texto de búsqueda
+    let filtered = products.filter(p => {
+        const matchCategory = currentCategory === 'all' || p.category === currentCategory;
+        const matchSearch = searchQuery === '' || normalizeText(p.name).includes(searchQuery) || normalizeText(p.description).includes(searchQuery);
+        return matchCategory && matchSearch;
+    });
+
+    if (filtered.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full text-center py-12 text-slate-400">
-                <p class="text-lg font-medium">No hay productos disponibles en esta categoría.</p>
+                <p class="text-lg font-medium">No hay productos disponibles en esta categoría o búsqueda.</p>
             </div>
         `;
         return;
     }
 
-    grid.innerHTML = productsToRender.map(product => {
-        // 1. Manejo dinámico de rutas de imágenes (GitHub Pages + Supabase Storage)
+    grid.innerHTML = filtered.map(product => {
         let imageUrl = product.image;
         
         if (!imageUrl) {
             imageUrl = 'https://via.placeholder.com/300?text=Sin+Imagen';
         } else if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-            // Si es una ruta relativa de GitHub (ej: "imagen/Combo.jpg"), asegura que no falte la barra si aplica
             imageUrl = imageUrl.startsWith('/') ? imageUrl.slice(1) : imageUrl;
         }
 
-        // 2. Manejo de estado "Agotado" u otras etiquetas
         const isAgotado = product.badge && product.badge.toLowerCase() === 'agotado';
-        const badgeColor = product.badge_color || (isAgotado ? 'bg-red-500' : 'bg-emerald-600');
+        const badgeColor = product.badgeColor || (isAgotado ? 'bg-red-500' : 'bg-emerald-600');
 
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
                 <div class="relative">
-                    <!-- Imagen con respaldo si falla la carga -->
                     <img 
                         src="${imageUrl}" 
                         alt="${product.name}" 
                         class="w-full h-48 object-cover ${isAgotado ? 'grayscale opacity-75' : ''}"
                         onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=Imagen+No+Disponible';"
                     >
-                    
-                    <!-- Insignia / Badge (Oferta, Agotado, Más Vendido, etc.) -->
                     ${product.badge ? `
                         <span class="absolute top-3 right-3 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm ${badgeColor}">
                             ${product.badge}
@@ -204,16 +209,15 @@ function renderProducts(productsToRender = products) {
                             </span>
                         </div>
 
-                        <!-- Botón Pedir por WhatsApp -->
                         <button 
-                            onclick="sendWhatsAppOrder('${product.name}', ${product.price}, '${product.currency || 'CUP'}')"
+                            onclick="addToCart(${product.id})"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors ${isAgotado ? 'opacity-50 cursor-not-allowed' : ''}"
                             ${isAgotado ? 'disabled' : ''}
                         >
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/>
+                                <path d="M11 9h2V6h3V4h-3V1h-2v3H8v2h3v3zm-4 9c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-9.83-3.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4l-3.86 7H8.53l-.13-.27L5.7 3H2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.13 0-.25-.11-.25-.25z"/>
                             </svg>
-                            <span class="hidden sm:inline">Pedir</span>
+                            <span class="hidden sm:inline">Agregar</span>
                         </button>
                     </div>
                 </div>
@@ -235,7 +239,6 @@ function addToCart(productId) {
 
     saveCart();
     updateCartUI();
-    renderProducts();
 }
 
 function updateQuantity(productId, change) {
@@ -248,7 +251,6 @@ function updateQuantity(productId, change) {
     }
     saveCart();
     updateCartUI();
-    renderProducts();
 }
 
 function updateCartUI() {
@@ -293,7 +295,7 @@ function updateCartUI() {
             cartItemsContainer.innerHTML = cart.map(item => `
                 <div class="pt-3 first:pt-0 flex items-center justify-between gap-3 border-b pb-3 last:border-b-0">
                     <div class="flex items-center gap-3">
-                        <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover bg-slate-100 flex-shrink-0" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80';">
+                        <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover bg-slate-100 flex-shrink-0" onerror="this.onerror=null; this.src='https://via.placeholder.com/60';">
                         <div>
                             <h4 class="text-xs font-bold text-slate-800 line-clamp-1">${item.name}</h4>
                             <p class="text-xs text-slate-500">${formatPrice(item.price, item.currency)} c/u</p>
@@ -375,11 +377,9 @@ function sendOrderWhatsApp() {
     message += `\n-----------------------------------\n`;
     message += `Por favor, confirmemos disponibilidad y método de pago para completar el envío. ¡Gracias!`;
 
-    // Vaciar el carrito tras el envío si el usuario lo confirma
     cart = [];
     saveCart();
     updateCartUI();
-    renderProducts();
 
     const encodedUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(encodedUrl, '_blank');
@@ -402,5 +402,3 @@ async function updateVisitCount() {
         if (countElement) countElement.textContent = '1';
     }
 }
-
-document.addEventListener('DOMContentLoaded', updateVisitCount);
