@@ -14,7 +14,7 @@
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
             <h2 class="text-xl font-bold text-slate-800 mb-4 text-center">Acceso Administrador</h2>
             <input type="password" id="adminPass" placeholder="Contraseña de acceso" class="w-full px-4 py-2 border rounded-xl mb-4 text-sm outline-none focus:border-emerald-600">
-            <button onclick="checkPass()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition">Entrar</button>
+            <button id="loginBtn" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition">Entrar</button>
         </div>
     </div>
 
@@ -28,7 +28,7 @@
         <!-- Formulario Agregar / Editar Producto -->
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-8">
             <h2 class="font-bold text-slate-800 text-lg mb-4">Agregar Nuevo Producto</h2>
-            <form id="productForm" onsubmit="saveProduct(event)" class="space-y-4">
+            <form id="productForm" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Nombre del Producto *</label>
@@ -92,31 +92,34 @@
     </div>
 
     <script>
-        // 1. REEMPLAZA ESTOS DOS VALORES CON TUS CLAVES REALES DE SUPABASE
-        const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1"; 
+        // CONFIGURACIÓN DE SUPABASE
+        const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; 
         const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";
+        const ADMIN_PASSWORD = "1234";
 
         let supabase = null;
 
-        // Intentar inicializar Supabase de forma segura
-        try {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar cliente Supabase
             if (window.supabase && typeof window.supabase.createClient === 'function') {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            } else {
-                console.error("El SDK de Supabase no se cargó correctamente.");
             }
-        } catch (e) {
-            console.error("Error al inicializar Supabase:", e.message);
-        }
 
-        // Contraseña de acceso
-        const ADMIN_PASSWORD = "1234"; // Cambia esta clave por la que prefieras
+            // Asignar evento al botón de login directamente por ID
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', checkPass);
+            }
 
-        // 2. Función de autenticación (Cargada explícitamente en window para evitar ReferenceError)
-        window.checkPass = function() {
+            const productForm = document.getElementById('productForm');
+            if (productForm) {
+                productForm.addEventListener('submit', saveProduct);
+            }
+        });
+
+        function checkPass() {
             const passInput = document.getElementById('adminPass');
             const pass = passInput ? passInput.value : '';
-            
             if (pass === ADMIN_PASSWORD) {
                 document.getElementById('loginModal').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
@@ -124,12 +127,12 @@
             } else {
                 alert("Contraseña incorrecta");
             }
-        };
+        }
 
-        window.saveProduct = async function(e) {
+        async function saveProduct(e) {
             e.preventDefault();
             if (!supabase) {
-                alert("Error de conexión con Supabase. Revisa las claves SUPABASE_URL y SUPABASE_KEY.");
+                alert("Error de conexión con Supabase.");
                 return;
             }
 
@@ -144,21 +147,18 @@
 
                 const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
 
-                // 1. Subir imagen al Bucket 'productos'
                 const { data: imgData, error: imgError } = await supabase.storage
                     .from('productos')
                     .upload(fileName, file);
 
                 if (imgError) throw imgError;
 
-                // 2. Obtener URL pública
                 const { data: urlData } = supabase.storage
                     .from('productos')
                     .getPublicUrl(fileName);
 
                 const imageUrl = urlData.publicUrl;
 
-                // 3. Insertar producto
                 const badge = document.getElementById('prodBadge').value;
                 let badgeColor = 'bg-emerald-600';
                 if (badge === 'Agotado') badgeColor = 'bg-red-500';
@@ -192,7 +192,7 @@
                 btn.disabled = false;
                 btn.innerText = "Guardar Producto en Supabase";
             }
-        };
+        }
 
         async function loadAdminProducts() {
             if (!supabase) return;
@@ -230,22 +230,22 @@
             `).join('');
         }
 
-        window.toggleAgotado = async function(id, currentBadge) {
+        async function toggleAgotado(id, currentBadge) {
             if (!supabase) return;
             const newBadge = currentBadge === 'Agotado' ? null : 'Agotado';
             const newColor = newBadge === 'Agotado' ? 'bg-red-500' : null;
 
             await supabase.from('products').update({ badge: newBadge, badge_color: newColor }).eq('id', id);
             loadAdminProducts();
-        };
+        }
 
-        window.deleteProduct = async function(id) {
+        async function deleteProduct(id) {
             if (!supabase) return;
             if (confirm("¿Seguro que deseas eliminar este producto?")) {
                 await supabase.from('products').delete().eq('id', id);
                 loadAdminProducts();
             }
-        };
+        }
     </script>
 </body>
 </html>
