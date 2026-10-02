@@ -91,9 +91,9 @@
         </div>
     </div>
 
-   <script>
-        const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; // Reemplaza con tu URL real
-        const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Reemplaza con tu llave anon real
+  <script>
+        const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; // Tu URL real
+        const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Tu llave anon real
         const ADMIN_PASSWORD = "1234";
 
         window.spClient = null;
@@ -146,16 +146,16 @@
 
                 const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
 
-                // --- ATENCIÓN: AHORA APUNTA AL BUCKET 'products' ---
+                // 1. SUBIR LA FOTO AL BUCKET 'productos' (en español)
                 const { data: imgData, error: imgError } = await window.spClient.storage
-                    .from('products')
+                    .from('productos')
                     .upload(fileName, file);
 
                 if (imgError) throw imgError;
 
-                // Obtener URL pública
+                // 2. OBTENER URL PÚBLICA DESDE EL BUCKET 'productos'
                 const { data: urlData } = window.spClient.storage
-                    .from('products')
+                    .from('productos')
                     .getPublicUrl(fileName);
 
                 const imageUrl = urlData.publicUrl;
@@ -177,6 +177,7 @@
                     description: document.getElementById('prodDescription').value
                 };
 
+                // 3. INSERTAR DATOS EN LA TABLA 'products' (en inglés)
                 const { error: dbError } = await window.spClient
                     .from('products')
                     .insert([newProd]);
