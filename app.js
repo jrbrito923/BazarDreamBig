@@ -9,10 +9,14 @@ const categories = [
     { id: 'combos', name: '🔥 Combos de Oferta' }
 ];
 // Configuración del cliente Supabase
-const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co"; // Reemplaza con tu URL
-const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Reemplaza con tu clave anon
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co"; 
+const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";
 
+window.spClient = null;
+
+if (window.supabase && typeof window.supabase.createClient === 'function') {
+    window.spClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
 // Arreglo de productos (se llenará desde la base de datos)
 let products = [];
 
