@@ -92,20 +92,26 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE SUPABASE
-        const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; 
-        const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";
-        const ADMIN_PASSWORD = "1234";
+        // 1. CONFIGURACIÓN DE SUPABASE (Renombramos la variable a supabaseClient)
+        const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; // Reemplaza con tu URL real
+        const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Reemplaza con tu llave real
+        const ADMIN_PASSWORD = "1234";                           // Tu contraseña
 
-        let supabase = null;
+        let supabaseClient = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializar cliente Supabase
-            if (window.supabase && typeof window.supabase.createClient === 'function') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            // Inicializar cliente evitando colisión con la variable global 'supabase'
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                } else {
+                    console.error("El SDK de Supabase no cargó correctamente.");
+                }
+            } catch (e) {
+                console.error("Error al conectar con Supabase:", e.message);
             }
 
-            // Asignar evento al botón de login directamente por ID
+            // Asignar evento al botón de login
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn) {
                 loginBtn.addEventListener('click', checkPass);
@@ -131,8 +137,8 @@
 
         async function saveProduct(e) {
             e.preventDefault();
-            if (!supabase) {
-                alert("Error de conexión con Supabase.");
+            if (!supabaseClient) {
+                alert("Error de conexión con Supabase. Verifica tus llaves API.");
                 return;
             }
 
@@ -147,13 +153,15 @@
 
                 const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
 
-                const { data: imgData, error: imgError } = await supabase.storage
+                // Subir foto
+                const { data: imgData, error: imgError } = await supabaseClient.storage
                     .from('productos')
                     .upload(fileName, file);
 
                 if (imgError) throw imgError;
 
-                const { data: urlData } = supabase.storage
+                // Obtener URL
+                const { data: urlData } = supabaseClient.storage
                     .from('productos')
                     .getPublicUrl(fileName);
 
@@ -176,7 +184,7 @@
                     description: document.getElementById('prodDescription').value
                 };
 
-                const { error: dbError } = await supabase
+                const { error: dbError } = await supabaseClient
                     .from('products')
                     .insert([newProd]);
 
@@ -195,9 +203,9 @@
         }
 
         async function loadAdminProducts() {
-            if (!supabase) return;
+            if (!supabaseClient) return;
             const list = document.getElementById('adminProductList');
-            const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
+            const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: false });
 
             if (error) {
                 list.innerHTML = `<p class="text-xs text-red-500">Error cargando inventario: ${error.message}</p>`;
@@ -231,18 +239,18 @@
         }
 
         async function toggleAgotado(id, currentBadge) {
-            if (!supabase) return;
+            if (!supabaseClient) return;
             const newBadge = currentBadge === 'Agotado' ? null : 'Agotado';
             const newColor = newBadge === 'Agotado' ? 'bg-red-500' : null;
 
-            await supabase.from('products').update({ badge: newBadge, badge_color: newColor }).eq('id', id);
+            await supabaseClient.from('products').update({ badge: newBadge, badge_color: newColor }).eq('id', id);
             loadAdminProducts();
         }
 
         async function deleteProduct(id) {
-            if (!supabase) return;
+            if (!supabaseClient) return;
             if (confirm("¿Seguro que deseas eliminar este producto?")) {
-                await supabase.from('products').delete().eq('id', id);
+                await supabaseClient.from('products').delete().eq('id', id);
                 loadAdminProducts();
             }
         }
