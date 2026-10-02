@@ -8,329 +8,46 @@ const categories = [
     { id: 'bebidas', name: '🥤 Bebidas' },
     { id: 'combos', name: '🔥 Combos de Oferta' }
 ];
+// Configuración del cliente Supabase
+const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; // Reemplaza con tu URL
+const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Reemplaza con tu clave anon
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const products = [
-    {
-        id: 1,
-        name: 'Combo Familiar Supremo',
-        category: 'combos',
-        price: 65.00,
-        currency: 'USD',
-        badge: 'Más Vendido',
-        badgeColor: 'bg-amber-500',
-        image: 'imagen/ComboSupremo.jpg',
-        description: 'Incluye: 11lb Pollo, 7lb Lomo deshuesado de Cerdo, 1 cartón de huevo (30), 2L Aceite, 5lb Arroz, 2lb Frijoles, 2 espaguetis de (500gr), 2 Pasta de tomate.'
-    },
-    {
-        id: 2,
-        name: 'Lomo deshuesado de cerdo',
-        category: 'carnes',
-        price: 2100.00,
-        currency: 'CUP',
-        badge: 'Oferta',
-        badgeColor: 'bg-emerald-500',
-        image: 'imagen/LOMO-DE-CERDO.jpg',
-        description: 'Incluye: Lomo de Cerdo por Libra.'
-    },
-    {
-        id: 3,
-        name: 'Jamonada de Cerdo',
-        category: 'carnes',
-        price: 600.00,
-        currency: 'CUP',
-        badge: 'Agotado',
-        badgeColor: 'bg-red-500',
-        image: 'imagen/jamonada de cerdo.jpg',
-        description: 'Incluye: jamonada por libra.'
-    },
-    {
-        id: 4,
-        name: 'Hamburguesa',
-        category: 'carnes',
-        price: 150.00,
-        currency: 'CUP',
-        badge: 'Agotado',
-        badgeColor: 'bg-red-500',
-        image: 'imagen/hamburguesa.jpg',
-        description: 'Incluye: hamburguesa por unidad.'
-    },
-    {
-        id: 5,
-        name: 'Picadillo MDM',
-        category: 'carnes',
-        price: 700.00,
-        currency: 'CUP',
-        badge: 'Oferta',
-        badgeColor: 'bg-emerald-500',
-        image: 'imagen/picadillo mdm.jpg',
-        description: 'Incluye: picadillo MDM por libras.'
-    },
-    {
-        id: 6,
-        name: 'Carne de Pollo',
-        category: 'carnes',
-        price: 8500.00,
-        currency: 'CUP',
-        badge: 'Oferta',
-        badgeColor: 'bg-emerald-500',
-        image: 'imagen/Pollo.jpg',
-        description: 'Incluye: Paquete de 10 Lbs de Cuartos.'
-    },
-    {
-        id: 7,
-        name: 'Toallitas húmedas',
-        category: 'aseo',
-        price: 1200.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/toallitahumedaBrisaViva.jpg',
-        description: 'Paquete de toallitas húmedas multiusos.'
-    },
-    {
-        id: 8,
-        name: 'Papel Sanitario la Excelencia',
-        category: 'aseo',
-        price: 600.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/papelexcelencia.jpg',
-        description: 'Papel sanitario 4 rollos súper suave 2 capas.'
-    },
-    {
-        id: 9,
-        name: 'Detergente Yeya',
-        category: 'aseo',
-        price: 950.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/detergenteYeya.jpg',
-        description: 'Detergente en polvo multiusos antibacterial y microbial (500gr).'
-    },
-    {
-        id: 10,
-        name: 'Pasta Dental RoyalFresh',
-        category: 'aseo',
-        price: 650.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/pastaRoyalfresh.jpg',
-        description: 'Pasta dental.'
-    },
-    {
-        id: 11,
-        name: 'Pasta Dental Sonríe',
-        category: 'aseo',
-        price: 600.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/pastadienteSonrie.jpg',
-        description: 'Pasta dental.'
-    },
-    {
-        id: 12,
-        name: 'Jabón Nácar',
-        category: 'aseo',
-        price: 350.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/jabonNacar.jpg',
-        description: 'Jabón nácar 100 gr.'
-    },
-    {
-        id: 13,
-        name: 'Arroz Kanga (1 kg)',
-        category: 'despensa',
-        price: 900.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/arrozkanga.jpg',
-        description: 'Arroz de grano largo entero, ideal para las comidas diarias de toda la familia.'
-    },
-    {
-        id: 14,
-        name: 'Arroz Pateko (1 kg)',
-        category: 'despensa',
-        price: 920.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/arrozpateko.jpg',
-        description: 'Arroz de grano largo entero, ideal para las comidas diarias de toda la familia.'
-    },
-    {
-        id: 15,
-        name: 'Aceite Sublime Sellado (900 ml)',
-        category: 'despensa',
-        price: 2800.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/aceiteSublime.jpg',
-        description: 'Aceite vegetal comestible, especial para freír y cocinar.'
-    },
-    {
-        id: 16,
-        name: 'Azúcar Blanca',
-        category: 'despensa',
-        price: 550.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/azucarblanca.jpg',
-        description: 'Azúcar blanca por libras.'
-    },
-    {
-        id: 17,
-        name: 'Espagueti (500 gr)',
-        category: 'despensa',
-        price: 600.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/espaguetiPastaMondo.jpg',
-        description: 'Espagueti paquete de 500g.'
-    },
-    {
-        id: 18,
-        name: 'Leche Condensada (390 gr)',
-        category: 'despensa',
-        price: 950.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/lecheRayan.jpg',
-        description: 'Leche condensada.'
-    },
-    {
-        id: 19,
-        name: 'Pasta de Tomate (400 gr)',
-        category: 'despensa',
-        price: 720.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/PastaGuerrero.jpg',
-        description: 'Pasta de tomate Guerrero 400g.'
-    },
-    {
-        id: 20,
-        name: 'Mostaza (300 gr)',
-        category: 'despensa',
-        price: 1500.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/mostazaazotea.jpg',
-        description: 'Mostaza 300g.'
-    },
-    {
-        id: 21,
-        name: 'Sazón Mina',
-        category: 'despensa',
-        price: 60.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/sasonmina.jpg',
-        description: 'Sazón Mina 5gr.'
-    },
-    {
-        id: 22,
-        name: 'Cerveza Cristal (Pack 24 latas)',
-        category: 'bebidas',
-        price: 840.00,
-        currency: 'CUP',
-        badge: 'Agotado',
-        badgeColor: 'bg-red-500',
-        image: 'imagen/cervezacristal.jpg',
-        description: 'Caja de 24 latas de cerveza.'
-    },
-    {
-        id: 23,
-        name: 'Cerveza Windmill (Pack 24 latas)',
-        category: 'bebidas',
-        price: 600.00,
-        currency: 'CUP',
-        badge: 'Frío Garantizado',
-        badgeColor: 'bg-purple-500',
-        image: 'imagen/cervezawidmill.jpg',
-        description: 'Caja de 24 latas de cerveza.'
-    },
-    {
-        id: 24,
-        name: 'Cerveza Valmero (Pack 24 latas)',
-        category: 'bebidas',
-        price: 530.00,
-        currency: 'CUP',
-        badge: 'Frío Garantizado',
-        badgeColor: 'bg-purple-500',
-        image: 'imagen/cervezavalmero.jpg',
-        description: 'Caja de 24 latas de cerveza.'
-    },
-    {
-        id: 25,
-        name: 'Ron Chancelier',
-        category: 'bebidas',
-        price: 3500.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/ronChancelier.jpg',
-        description: 'Botella de 1L.'
-    },
-    {
-        id: 26,
-        name: 'Shaka',
-        category: 'bebidas',
-        price: 600.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/shaka.jpg',
-        description: 'Bebida compuesta por vodka y energizante.'
-    },
-    {
-        id: 27,
-        name: 'Refresco Brío',
-        category: 'bebidas',
-        price: 550.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/refrescoBrio1.jpg',
-        description: 'Refresco en lata.'
-    },
-    {
-        id: 28,
-        name: 'Agua Ciego Montero',
-        category: 'bebidas',
-        price: 400.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/aguaCiegoMontero.jpg',
-        description: 'Agua mineral en botella/lata.'
-    },
-    {
-        id: 29,
-        name: 'Malta Santa Isabel',
-        category: 'bebidas',
-        price: 650.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/maltaSantaIsabel.jpg',
-        description: 'Malta de 330ml.'
-    },
-    {
-        id: 30,
-        name: 'Malta Guajira',
-        category: 'bebidas',
-        price: 1900.00,
-        currency: 'CUP',
-        badge: null,
-        image: 'imagen/Maltaguajira.jpg',
-        description: 'Malta de 1500ml.'
-    },
-    {
-        id: 32,
-        name: 'Cartón De Huevo',
-        category: 'carnes',
-        price: 4100.00,
-        currency: 'CUP',
-        badge: 'Oferta',
-        badgeColor: 'bg-emerald-500',
-        image: 'imagen/huevo.jpg',
-        description: 'Incluye: 30 unidades de huevos frescos.'
+// Arreglo de productos (se llenará desde la base de datos)
+let products = [];
+
+async function fetchProductsFromSupabase() {
+    try {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .order('id', { ascending: true });
+
+        if (error) throw error;
+
+        if (data) {
+            // Mapeamos los datos para adaptarlos al formato exacto de tu tienda
+            products = data.map(p => ({
+                id: p.id,
+                name: p.name,
+                category: p.category,
+                price: parseFloat(p.price),
+                currency: p.currency || 'CUP',
+                badge: p.badge,
+                badgeColor: p.badge_color,
+                image: p.image,
+                description: p.description
+            }));
+
+            // Dibujamos las tarjetas en pantalla con los datos recién obtenidos
+            renderProducts();
+        }
+    } catch (err) {
+        console.error("Error cargando productos desde Supabase:", err.message);
     }
-];
+}
+
+
 
 // Cargar el carrito guardado en localStorage al iniciar la aplicación
 let cart = JSON.parse(localStorage.getItem('bazar_cart')) || [];
@@ -351,6 +68,7 @@ function formatPrice(price, currency = 'CUP') {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    fetchProductsFromSupabase(); // <--- Carga los productos desde la nube
     renderCategories();
     renderProducts();
     updateCartUI();

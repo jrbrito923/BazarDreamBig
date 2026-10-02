@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - BAZAR Dream Big</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-4 sm:p-6">
+
+    <!-- Modal de Autenticación Simple -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 text-center">Acceso Administrador</h2>
+            <input type="password" id="adminPass" placeholder="Contraseña de acceso" class="w-full px-4 py-2 border rounded-xl mb-4 text-sm outline-none focus:border-emerald-600">
+            <button onclick="checkPass()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition">Entrar</button>
+        </div>
+    </div>
+
+    <!-- Panel de Control Principal -->
+    <div id="adminPanel" class="max-w-4xl mx-auto hidden">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-black text-slate-900">Panel Admin - BAZAR Dream Big</h1>
+            <a href="index.html" class="text-xs bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl hover:bg-slate-300">Ir a la Tienda</a>
+        </div>
+
+        <!-- Formulario Agregar / Editar Producto -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-8">
+            <h2 class="font-bold text-slate-800 text-lg mb-4">Agregar Nuevo Producto</h2>
+            <form id="productForm" onsubmit="saveProduct(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Nombre del Producto *</label>
+                        <input type="text" id="prodName" required class="w-full px-3 py-2 border rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Categoría *</label>
+                        <select id="prodCategory" required class="w-full px-3 py-2 border rounded-xl text-sm">
+                            <option value="combos">🔥 Combos de Oferta</option>
+                            <option value="carnes">🥩 Cárnicos</option>
+                            <option value="despensa">🌾 Despensa & Granos</option>
+                            <option value="aseo">🧼 Aseo e Higiene</option>
+                            <option value="bebidas">🥤 Bebidas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Precio *</label>
+                        <input type="number" step="0.01" id="prodPrice" required class="w-full px-3 py-2 border rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Moneda *</label>
+                        <select id="prodCurrency" class="w-full px-3 py-2 border rounded-xl text-sm">
+                            <option value="CUP">CUP</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Etiqueta / Estado</label>
+                        <select id="prodBadge" class="w-full px-3 py-2 border rounded-xl text-sm">
+                            <option value="">Sin Etiqueta</option>
+                            <option value="Oferta">Oferta</option>
+                            <option value="Más Vendido">Más Vendido</option>
+                            <option value="Frío Garantizado">Frío Garantizado</option>
+                            <option value="Agotado">Agotado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Imagen del Producto *</label>
+                        <input type="file" id="prodImageFile" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Descripción</label>
+                    <textarea id="prodDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm"></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow transition duration-200">
+                    Guardar Producto en Supabase
+                </button>
+            </form>
+        </div>
+
+        <!-- Lista de Productos Existentes -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <h2 class="font-bold text-slate-800 text-lg mb-4">Inventario Actual</h2>
+            <div id="adminProductList" class="space-y-3">
+                <p class="text-xs text-slate-400">Cargando productos...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DE SUPABASE (Reemplaza con tus claves del Paso 1)
+        const SUPABASE_URL = "https://TU_PROYECTO.supabase.co";
+        const SUPABASE_KEY = "TU_LLAVE_ANON_PUBLIC";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Contraseña simple para el admin
+        const ADMIN_PASSWORD = "1234"; // Cambia esta clave por una que prefieras
+
+        function checkPass() {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                loadAdminProducts();
+            } else {
+                alert("Contraseña incorrecta");
+            }
+        }
+
+        async function saveProduct(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Subiendo imagen y guardando...";
+
+            try {
+                const fileInput = document.getElementById('prodImageFile');
+                const file = fileInput.files[0];
+                const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+
+                // 1. Subir imagen al Bucket 'productos'
+                const { data: imgData, error: imgError } = await supabase.storage
+                    .from('productos')
+                    .upload(fileName, file);
+
+                if (imgError) throw imgError;
+
+                // 2. Obtener URL pública de la imagen
+                const { data: urlData } = supabase.storage
+                    .from('productos')
+                    .getPublicUrl(fileName);
+
+                const imageUrl = urlData.publicUrl;
+
+                // 3. Insertar producto en la tabla
+                const badge = document.getElementById('prodBadge').value;
+                let badgeColor = 'bg-emerald-600';
+                if (badge === 'Agotado') badgeColor = 'bg-red-500';
+                if (badge === 'Más Vendido') badgeColor = 'bg-amber-500';
+                if (badge === 'Frío Garantizado') badgeColor = 'bg-purple-500';
+
+                const newProd = {
+                    name: document.getElementById('prodName').value,
+                    category: document.getElementById('prodCategory').value,
+                    price: parseFloat(document.getElementById('prodPrice').value),
+                    currency: document.getElementById('prodCurrency').value,
+                    badge: badge || null,
+                    badge_color: badge ? badgeColor : null,
+                    image: imageUrl,
+                    description: document.getElementById('prodDescription').value
+                };
+
+                const { error: dbError } = await supabase
+                    .from('products')
+                    .insert([newProd]);
+
+                if (dbError) throw dbError;
+
+                alert("¡Producto agregado exitosamente!");
+                document.getElementById('productForm').reset();
+                loadAdminProducts();
+
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar Producto en Supabase";
+            }
+        }
+
+        async function loadAdminProducts() {
+            const list = document.getElementById('adminProductList');
+            const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
+
+            if (error) {
+                list.innerHTML = `<p class="text-xs text-red-500">Error cargando inventario</p>`;
+                return;
+            }
+
+            if (data.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400">No hay productos en la base de datos todavía.</p>`;
+                return;
+            }
+
+            list.innerHTML = data.map(p => `
+                <div class="flex items-center justify-between p-3 border rounded-xl bg-slate-50">
+                    <div class="flex items-center gap-3">
+                        <img src="${p.image}" class="w-12 h-12 rounded-lg object-cover">
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-800">${p.name}</h4>
+                            <p class="text-[11px] text-slate-500">$${p.price} ${p.currency} | ${p.badge || 'Sin etiqueta'}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleAgotado(${p.id}, '${p.badge}')" class="text-xs px-2.5 py-1 rounded-lg font-bold ${p.badge === 'Agotado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                            ${p.badge === 'Agotado' ? 'Reactivar' : 'Marcar Agotado'}
+                        </button>
+                        <button onclick="deleteProduct(${p.id})" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-red-100 text-red-600 hover:bg-red-200">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function toggleAgotado(id, currentBadge) {
+            const newBadge = currentBadge === 'Agotado' ? null : 'Agotado';
+            const newColor = newBadge === 'Agotado' ? 'bg-red-500' : null;
+
+            await supabase.from('products').update({ badge: newBadge, badge_color: newColor }).eq('id', id);
+            loadAdminProducts();
+        }
+
+        async function deleteProduct(id) {
+            if (confirm("¿Seguro que deseas eliminar este producto?")) {
+                await supabase.from('products').delete().eq('id', id);
+                loadAdminProducts();
+            }
+        }
+    </script>
+</body>
+</html>
