@@ -91,27 +91,28 @@
         </div>
     </div>
 
-    <script>
-        // 1. CONFIGURACIÓN DE SUPABASE (Renombramos la variable a supabaseClient)
+   <script>
+        // 1. TUS CREDENCIALES
         const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co/rest/v1/"; // Reemplaza con tu URL real
         const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";             // Reemplaza con tu llave real
-        const ADMIN_PASSWORD = "1234";                           // Tu contraseña
+        const ADMIN_PASSWORD = "1234";
 
-        let supabaseClient = null;
+        // Usamos una propiedad en window para evitar cualquier conflicto de variables globales
+        window.spClient = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializar cliente evitando colisión con la variable global 'supabase'
             try {
+                // Inicializamos utilizando la librería global window.supabase
                 if (window.supabase && typeof window.supabase.createClient === 'function') {
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    window.spClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 } else {
-                    console.error("El SDK de Supabase no cargó correctamente.");
+                    console.error("No se encontró la librería de Supabase.");
                 }
             } catch (e) {
-                console.error("Error al conectar con Supabase:", e.message);
+                console.error("Error inicializando Supabase:", e.message);
             }
 
-            // Asignar evento al botón de login
+            // Escuchadores de eventos
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn) {
                 loginBtn.addEventListener('click', checkPass);
@@ -137,8 +138,8 @@
 
         async function saveProduct(e) {
             e.preventDefault();
-            if (!supabaseClient) {
-                alert("Error de conexión con Supabase. Verifica tus llaves API.");
+            if (!window.spClient) {
+                alert("Error de conexión con Supabase. Revisa tus credenciales.");
                 return;
             }
 
@@ -153,15 +154,15 @@
 
                 const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
 
-                // Subir foto
-                const { data: imgData, error: imgError } = await supabaseClient.storage
+                // Subir archivo a Supabase Storage
+                const { data: imgData, error: imgError } = await window.spClient.storage
                     .from('productos')
                     .upload(fileName, file);
 
                 if (imgError) throw imgError;
 
-                // Obtener URL
-                const { data: urlData } = supabaseClient.storage
+                // Obtener URL pública de la imagen
+                const { data: urlData } = window.spClient.storage
                     .from('productos')
                     .getPublicUrl(fileName);
 
@@ -184,7 +185,7 @@
                     description: document.getElementById('prodDescription').value
                 };
 
-                const { error: dbError } = await supabaseClient
+                const { error: dbError } = await window.spClient
                     .from('products')
                     .insert([newProd]);
 
@@ -203,9 +204,9 @@
         }
 
         async function loadAdminProducts() {
-            if (!supabaseClient) return;
+            if (!window.spClient) return;
             const list = document.getElementById('adminProductList');
-            const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: false });
+            const { data, error } = await window.spClient.from('products').select('*').order('id', { ascending: false });
 
             if (error) {
                 list.innerHTML = `<p class="text-xs text-red-500">Error cargando inventario: ${error.message}</p>`;
@@ -239,18 +240,18 @@
         }
 
         async function toggleAgotado(id, currentBadge) {
-            if (!supabaseClient) return;
+            if (!window.spClient) return;
             const newBadge = currentBadge === 'Agotado' ? null : 'Agotado';
             const newColor = newBadge === 'Agotado' ? 'bg-red-500' : null;
 
-            await supabaseClient.from('products').update({ badge: newBadge, badge_color: newColor }).eq('id', id);
+            await window.spClient.from('products').update({ badge: newBadge, badge_color: newColor }).eq('id', id);
             loadAdminProducts();
         }
 
         async function deleteProduct(id) {
-            if (!supabaseClient) return;
+            if (!window.spClient) return;
             if (confirm("¿Seguro que deseas eliminar este producto?")) {
-                await supabaseClient.from('products').delete().eq('id', id);
+                await window.spClient.from('products').delete().eq('id', id);
                 loadAdminProducts();
             }
         }
