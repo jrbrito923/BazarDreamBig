@@ -3,454 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - BAZAR Dream Big</title>
+    <title>Bazar Dream Big - Tienda en Línea</title>
+    
+    <!-- SEO y Meta Etiquetas para Vista Previa en WhatsApp / Redes Sociales -->
+    <meta name="description" content="Tu tienda de confianza en línea. Realiza tu pedido de productos cárnicos, despensa, aseo y bebidas con envío directo.">
+    <meta property="og:title" content="Bazar Dream Big - Tienda en Línea">
+    <meta property="og:description" content="📱 Realiza tu pedido fácilmente y confirma por WhatsApp. ¡Envíos directos!">
+    <meta property="og:type" content="website">
+
+    <!-- Directivas para evitar caché en los navegadores -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; background-color: #e2e8f0; }
+    50% { opacity: 0.5; background-color: #cbd5e1; }
+  }
+  .skeleton-bg {
+    animation: skeleton-pulse 1.5s infinite ease-in-out;
+  }
+</style>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-100 min-h-screen p-4 sm:p-6">
+<body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
 
-    <!-- Modal de Autenticación Simple -->
-    <div id="loginModal" class="fixed inset-0 bg-slate-900/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
-            <h2 class="text-xl font-bold text-slate-800 mb-4 text-center">Acceso Administrador</h2>
-            <input type="password" id="adminPass" placeholder="Contraseña de acceso" class="w-full px-4 py-2 border rounded-xl mb-4 text-sm outline-none focus:border-emerald-600">
-            <button id="loginBtn" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition">Entrar</button>
-        </div>
-    </div>
+    <!-- Header Principal -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Logo / Nombre de la Tienda -->
+            <div class="flex items-center gap-2">
+                <div class="bg-emerald-600 text-white p-2 rounded-xl shadow">
+                    <i data-lucide="store" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-lg sm:text-xl text-slate-900 leading-none">BAZAR Dream Big</h1>
+                    <p class="text-[10px] text-slate-500 font-medium">Tu tienda de confianza</p>
+                </div>
+            </div>
 
-    <!-- Panel de Control Principal -->
-    <div id="adminPanel" class="max-w-4xl mx-auto hidden">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-black text-slate-900">Panel Admin - BAZAR Dream Big</h1>
-            <a href="index.html" class="text-xs bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl hover:bg-slate-300">Ir a la Tienda</a>
-        </div>
-
-        <!-- SECCIÓN: Gestión de Categorías -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-8">
-            <h2 class="font-bold text-slate-800 text-lg mb-4">Gestión de Categorías</h2>
-            <form id="categoryForm" onsubmit="saveCategory(event)" class="flex gap-3 mb-4">
-                <input type="text" id="catName" placeholder="Nombre (ej. 🥖 Panadería)" required class="flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                <button type="submit" id="catSubmitBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
-                    + Agregar Categoría
+            <!-- Buscador (Desktop / Tablet) -->
+            <div class="hidden sm:flex flex-1 max-w-md relative">
+                <input type="text" id="searchInput" placeholder="Buscar productos (ej. arroz, carne, cerveza)..." 
+                       class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                <button id="clearSearch" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
-            </form>
-            <div id="adminCategoryList" class="flex flex-wrap gap-2 pt-2 border-t">
-                <p class="text-xs text-slate-400">Cargando categorías...</p>
+            </div>
+
+            <!-- Botón de Carrito -->
+            <button onclick="toggleCartModal(true)" class="relative bg-slate-900 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow transition duration-200 flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Ver Pedido</span>
+                <span id="cartTotalHeader" class="font-bold text-emerald-400 sm:border-l sm:border-slate-700 sm:pl-2">$0.00</span>
+                <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-emerald-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow">0</span>
+            </button>
+        </div>
+
+        <!-- Buscador Móvil -->
+        <div class="sm:hidden px-4 pb-3">
+            <div class="relative">
+                <input type="text" id="searchInputMobile" placeholder="Buscar productos..." 
+                       class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Contenedor Sticky de Categorías -->
+        <div class="sticky top-[105px] sm:top-[64px] z-20 bg-slate-50/95 backdrop-blur-md py-3 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b border-slate-200/60 shadow-sm transition-all">
+            <div class="max-w-7xl mx-auto overflow-x-auto overflow-y-hidden no-scrollbar touch-pan-x">
+                <div id="categoryChips" class="flex gap-2 min-w-max">
+                    <!-- Categorías dinámicas insertadas por JS -->
+                </div>
             </div>
         </div>
 
-        <!-- SECCIÓN: Formulario Agregar Producto -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-8">
-            <h2 class="font-bold text-slate-800 text-lg mb-4">Agregar Nuevo Producto</h2>
-            <form id="productForm" class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Nombre del Producto *</label>
-                        <input type="text" id="prodName" required class="w-full px-3 py-2 border rounded-xl text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Categoría *</label>
-                        <select id="prodCategory" required class="w-full px-3 py-2 border rounded-xl text-sm">
-                            <option value="">Cargando categorías...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Precio *</label>
-                        <input type="number" step="0.01" id="prodPrice" required class="w-full px-3 py-2 border rounded-xl text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Moneda *</label>
-                        <select id="prodCurrency" class="w-full px-3 py-2 border rounded-xl text-sm">
-                            <option value="CUP">CUP</option>
-                            <option value="USD">USD</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Etiqueta / Estado</label>
-                        <select id="prodBadge" class="w-full px-3 py-2 border rounded-xl text-sm">
-                            <option value="">Sin Etiqueta</option>
-                            <option value="Oferta">Oferta</option>
-                            <option value="Más Vendido">Más Vendido</option>
-                            <option value="Frío Garantizado">Frío Garantizado</option>
-                            <option value="Agotado">Agotado</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Imagen del Producto *</label>
-                        <input type="file" id="prodImageFile" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Descripción</label>
-                    <textarea id="prodDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm"></textarea>
-                </div>
-
-                <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow transition duration-200">
-                    Guardar Producto en Supabase
-                </button>
-            </form>
+        <!-- Título y Contador de Productos -->
+        <div class="flex items-center justify-between mb-4 mt-4">
+            <h2 id="currentCategoryTitle" class="text-lg sm:text-xl font-bold text-slate-900">Todos los Productos</h2>
+            <span id="productCount" class="text-xs text-slate-500 font-medium">Mostrando 0 productos</span>
         </div>
 
-        <!-- SECCIÓN: Lista de Productos Existentes -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-            <h2 class="font-bold text-slate-800 text-lg mb-4">Inventario Actual</h2>
-            <div id="adminProductList" class="space-y-3">
-                <p class="text-xs text-slate-400">Cargando productos...</p>
+        <!-- Grid Móvil / Desktop de Productos -->
+        <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
+            <!-- Cards dinámicas insertadas por JS -->
+        </div>
+
+        <!-- Estado Sin Resultados -->
+        <div id="noResults" class="hidden text-center py-16">
+            <div class="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-400">
+                <i data-lucide="search-x" class="w-8 h-8"></i>
             </div>
+            <h3 class="text-base font-bold text-slate-800">No se encontraron productos</h3>
+            <p class="text-xs text-slate-500 mt-1">Intenta con otra búsqueda o selecciona una categoría diferente.</p>
         </div>
-    </div>
+    </main>
 
-    <!-- Modal de Edición de Producto -->
-    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-100">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Editar Producto</h3>
-            
-            <form id="editForm" onsubmit="saveEditedProduct(event)" class="space-y-4">
-                <input type="hidden" id="editProdId">
+    <!-- Modal Drawer del Carrito -->
+    <div id="cartModal" class="hidden fixed inset-0 z-50 overflow-hidden">
+        <!-- Overlay oscuro -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="toggleCartModal(false)"></div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Producto</label>
-                    <input type="text" id="editProdName" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Precio</label>
-                        <input type="number" step="0.01" id="editProdPrice" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between">
+                <!-- Header del Modal -->
+                <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 text-emerald-600"></i>
+                        <h3 class="font-bold text-slate-900 text-base">Tu Pedido</h3>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Moneda</label>
-                        <select id="editProdCurrency" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="CUP">CUP</option>
-                            <option value="USD">USD</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
-                    <select id="editProdCategory" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                    </select>
-                </div>
-
-                <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeEditModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-200 transition">
-                        Cancelar
-                    </button>
-                    <button type="submit" id="saveEditBtn" class="flex-1 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 transition">
-                        Guardar Cambios
+                    <button onclick="toggleCartModal(false)" class="p-1 rounded-lg hover:bg-slate-200 text-slate-500 transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
-            </form>
-        </div>
-    </div>
 
-    <script>
-        const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";
-        const ADMIN_PASSWORD = "1234";
-
-        window.spClient = null;
-        let categoriesCache = [];
-
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                if (window.supabase && typeof window.supabase.createClient === 'function') {
-                    window.spClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                } else {
-                    console.error("No se encontró la librería de Supabase.");
-                }
-            } catch (e) {
-                console.error("Error inicializando Supabase:", e.message);
-            }
-
-            const loginBtn = document.getElementById('loginBtn');
-            if (loginBtn) loginBtn.addEventListener('click', checkPass);
-
-            const productForm = document.getElementById('productForm');
-            if (productForm) productForm.addEventListener('submit', saveProduct);
-        });
-
-        function checkPass() {
-            const passInput = document.getElementById('adminPass');
-            const pass = passInput ? passInput.value : '';
-            if (pass === ADMIN_PASSWORD) {
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('adminPanel').classList.remove('hidden');
-                loadCategories();
-                loadAdminProducts();
-            } else {
-                alert("Contraseña incorrecta");
-            }
-        }
-
-        // --- GESTIÓN DE CATEGORÍAS ---
-        async function loadCategories() {
-            if (!window.spClient) return;
-            const { data, error } = await window.spClient.from('categories').select('*');
-            
-            if (error) {
-                console.error("Error cargando categorías:", error.message);
-                return;
-            }
-
-            categoriesCache = data || [];
-            renderCategoryOptions();
-            renderCategoryChips();
-        }
-
-        function renderCategoryOptions() {
-            const selects = [document.getElementById('prodCategory'), document.getElementById('editProdCategory')];
-            const optionsHTML = categoriesCache.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            
-            selects.forEach(select => {
-                if (select) select.innerHTML = optionsHTML;
-            });
-        }
-
-        function renderCategoryChips() {
-            const list = document.getElementById('adminCategoryList');
-            if (!list) return;
-
-            if (categoriesCache.length === 0) {
-                list.innerHTML = `<p class="text-xs text-slate-400">No hay categorías registradas.</p>`;
-                return;
-            }
-
-            list.innerHTML = categoriesCache.map(c => `
-                <div class="flex items-center gap-2 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-slate-200">
-                    <span>${c.name}</span>
-                    <button onclick="deleteCategory('${c.id}')" class="text-slate-400 hover:text-red-500 font-bold ml-1">✕</button>
+                <!-- Cuerpo: Ítems del Carrito -->
+                <div class="flex-1 overflow-y-auto p-4 divide-y divide-slate-100" id="cartItemsContainer">
+                    <!-- Insertados dinámicamente por JS -->
                 </div>
-            `).join('');
-        }
 
-        async function saveCategory(e) {
-            e.preventDefault();
-            if (!window.spClient) return;
+                <!-- Formulario de Entrega y Totales -->
+                <div class="p-4 border-t border-slate-200 bg-slate-50 space-y-3">
+                    <div class="space-y-1.5">
+                        <span class="text-xs font-bold text-slate-700 uppercase">Datos para el Envío</span>
+                        <input type="text" id="clientName" placeholder="Tu Nombre *" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="tel" id="clientPhone" placeholder="Teléfono *" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                            <input type="text" id="clientLocation" placeholder="Municipio / Zona *" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <input type="text" id="clientAddress" placeholder="Dirección Exacta *" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                        <input type="text" id="clientNotes" placeholder="Notas adicionales (opcional)" class="w-full bg-white border border-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                    </div>
 
-            const nameInput = document.getElementById('catName');
-            const name = nameInput.value.trim();
-            if (!name) return;
-
-            // Generar ID normalizado (ej. "🥖 Panadería" -> "panaderia")
-            const id = name.toLowerCase()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^a-z0-9]/g, '');
-
-            const btn = document.getElementById('catSubmitBtn');
-            btn.disabled = true;
-
-            try {
-                const { error } = await window.spClient.from('categories').insert([{ id, name }]);
-                if (error) throw error;
-
-                nameInput.value = '';
-                await loadCategories();
-            } catch (err) {
-                alert("Error al guardar categoría: " + err.message);
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        async function deleteCategory(id) {
-            if (!window.spClient) return;
-            if (confirm(`¿Seguro que deseas eliminar esta categoría?`)) {
-                const { error } = await window.spClient.from('categories').delete().eq('id', id);
-                if (error) {
-                    alert("Error al eliminar: " + error.message);
-                } else {
-                    loadCategories();
-                }
-            }
-        }
-
-        // --- PRODUCTOS ---
-        async function saveProduct(e) {
-            e.preventDefault();
-            if (!window.spClient) {
-                alert("Error de conexión con Supabase.");
-                return;
-            }
-
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerText = "Subiendo imagen y guardando...";
-
-            try {
-                const fileInput = document.getElementById('prodImageFile');
-                const file = fileInput.files[0];
-                if (!file) throw new Error("Debes seleccionar una imagen.");
-
-                const extension = file.name.split('.').pop().toLowerCase();
-                const cleanBaseName = file.name
-                    .split('.')[0]
-                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                    .replace(/[^a-zA-Z0-9_-]/g, "_");
-
-                const fileName = `${Date.now()}_${cleanBaseName}.${extension}`;
-
-                const { data: imgData, error: imgError } = await window.spClient.storage
-                    .from('productos')
-                    .upload(fileName, file, { cacheControl: '3600', upsert: true });
-
-                if (imgError) throw imgError;
-
-                const { data: urlData } = window.spClient.storage
-                    .from('productos')
-                    .getPublicUrl(fileName);
-
-                const imageUrl = urlData.publicUrl;
-
-                const badge = document.getElementById('prodBadge').value;
-                let badgeColor = 'bg-emerald-600';
-                if (badge === 'Agotado') badgeColor = 'bg-red-500';
-                if (badge === 'Más Vendido') badgeColor = 'bg-amber-500';
-                if (badge === 'Frío Garantizado') badgeColor = 'bg-purple-500';
-
-                const newProd = {
-                    name: document.getElementById('prodName').value.trim(),
-                    category: document.getElementById('prodCategory').value,
-                    price: parseFloat(document.getElementById('prodPrice').value),
-                    currency: document.getElementById('prodCurrency').value,
-                    badge: badge || null,
-                    badge_color: badge ? badgeColor : null,
-                    image: imageUrl,
-                    description: document.getElementById('prodDescription').value.trim()
-                };
-
-                const { error: dbError } = await window.spClient
-                    .from('products')
-                    .insert([newProd]);
-
-                if (dbError) throw dbError;
-
-                alert("¡Producto agregado exitosamente!");
-                document.getElementById('productForm').reset();
-                loadAdminProducts();
-
-            } catch (err) {
-                alert("Error: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Guardar Producto en Supabase";
-            }
-        }
-
-        async function loadAdminProducts() {
-            if (!window.spClient) return;
-            const list = document.getElementById('adminProductList');
-            const { data, error } = await window.spClient
-                .from('products')
-                .select('*')
-                .order('id', { ascending: false });
-
-            if (error) {
-                list.innerHTML = `<p class="text-xs text-red-500">Error cargando inventario: ${error.message}</p>`;
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                list.innerHTML = `<p class="text-xs text-slate-400">No hay productos en la base de datos todavía.</p>`;
-                return;
-            }
-
-            list.innerHTML = data.map(p => `
-                <div class="flex items-center justify-between p-3 border rounded-xl bg-slate-50">
-                    <div class="flex items-center gap-3">
-                        <img src="${p.image}" class="w-12 h-12 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/50'">
-                        <div>
-                            <h4 class="font-bold text-xs text-slate-800">${p.name}</h4>
-                            <p class="text-[11px] text-slate-500">$${p.price} ${p.currency || 'CUP'} | ${p.badge || 'Sin etiqueta'}</p>
+                    <div class="pt-2 border-t border-slate-200 space-y-1">
+                        <div class="flex justify-between text-xs text-slate-500">
+                            <span>Subtotal</span>
+                            <span id="cartSubtotal" class="font-medium">$0.00</span>
+                        </div>
+                        <p class="text-[11px] text-amber-600 font-medium leading-tight">* El costo de envío y método de pago se confirman vía WhatsApp.</p>
+                        <div class="flex justify-between text-base font-black text-slate-900 pt-1">
+                            <span>Total Estimado</span>
+                            <span id="cartTotal" class="text-emerald-600">$0.00</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="openEditModal(${p.id}, '${escapeQuotes(p.name)}', ${p.price}, '${p.currency || 'CUP'}', '${p.category}')" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
-                            Editar
-                        </button>
-                        <button onclick="toggleAgotado(${p.id}, '${p.badge || ''}')" class="text-xs px-2.5 py-1 rounded-lg font-bold ${p.badge === 'Agotado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${p.badge === 'Agotado' ? 'Reactivar' : 'Agotado'}
-                        </button>
-                        <button onclick="deleteProduct(${p.id})" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-red-100 text-red-600 hover:bg-red-200">
-                            Eliminar
-                        </button>
-                    </div>
+
+                    <button onclick="sendOrderWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        <span>Enviar Pedido por WhatsApp</span>
+                    </button>
                 </div>
-            `).join('');
-        }
+            </div>
+        </div>
+    </div>
 
-        function escapeQuotes(str) {
-            return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
-        }
-
-        function openEditModal(id, name, price, currency, category) {
-            document.getElementById('editProdId').value = id;
-            document.getElementById('editProdName').value = name;
-            document.getElementById('editProdPrice').value = price;
-            document.getElementById('editProdCurrency').value = currency;
-            document.getElementById('editProdCategory').value = category;
-
-            document.getElementById('editModal').classList.remove('hidden');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.add('hidden');
-        }
-
-        async function saveEditedProduct(e) {
-            e.preventDefault();
-            if (!window.spClient) return;
-
-            const btn = document.getElementById('saveEditBtn');
-            btn.disabled = true;
-            btn.innerText = "Guardando...";
-
-            const id = document.getElementById('editProdId').value;
-            const updatedData = {
-                name: document.getElementById('editProdName').value.trim(),
-                price: parseFloat(document.getElementById('editProdPrice').value),
-                currency: document.getElementById('editProdCurrency').value,
-                category: document.getElementById('editProdCategory').value
-            };
-
-            try {
-                const { error } = await window.spClient
-                    .from('products')
-                    .update(updatedData)
-                    .eq('id', id);
-
-                if (error) throw error;
-
-                alert("¡Producto actualizado correctamente!");
-                closeEditModal();
-                loadAdminProducts();
-
-            } catch (err) {
-                alert("Error al actualizar: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Guardar Cambios";
-            }
-        }
-
-        async function toggleAgotado(id, currentBadge) {
-            if (!window.spClient) return;
-            const newBadge = currentBadge === 'Agotado' ? null : 'Agotado';
-            const newColor = newBadge === 'Agotado' ? 'bg-red-500' : null;
-
-            await window.spClient.from('products').update({ badge: newBadge, badge_color: newColor }).eq('id', id);
-            loadAdminProducts();
-        }
-
-        async function deleteProduct(id) {
-            if (!window.spClient) return;
-            if (confirm("¿Seguro que deseas eliminar este producto?")) {
-                await window.spClient.from('products').delete().eq('id', id);
-                loadAdminProducts();
-            }
-        }
-    </script>
+    <!-- Footer -->
+    <footer class="mt-auto bg-slate-900 text-slate-300">
+        <div class="bg-emerald-600 text-white text-xs sm:text-sm font-medium py-2.5 px-4 text-center flex items-center justify-center gap-2">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            <span>Realiza tu pedido fácilmente y confirma por WhatsApp. ¡Envíos directos!</span>
+        </div>
+        <div class="max-w-7xl mx-auto py-3 px-4 flex justify-between items-center text-xs text-slate-400">
+            <span>&copy; 2026 BAZAR Dream Big. Todos los derechos reservados.</span>
+            <div class="flex items-center gap-1.5 bg-slate-800 px-3 py-1 rounded-full">
+                <i data-lucide="eye" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Visitas:</span>
+                <span id="visitCount" class="font-bold text-white">Cargando...</span>
+            </div>
+        </div>
+    </footer>
+    <!-- carga supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Script Principal JavaScript -->
+    <script src="app.js"></script>
 </body>
 </html>
