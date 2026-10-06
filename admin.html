@@ -22,10 +22,24 @@
     <div id="adminPanel" class="max-w-4xl mx-auto hidden">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-black text-slate-900">Panel Admin - BAZAR Dream Big</h1>
-            <a href="index.html" class="text-xs bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl hover:bg-slate-300">Ir a la Tienda</a>
+            <a href="index.html" class="text-xs bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl hover:bg-slate-300">Ir a la Tienda (index.html)</a>
         </div>
 
-        <!-- Formulario Agregar Producto -->
+        <!-- SECCIÓN 1: Gestión de Categorías -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-8">
+            <h2 class="font-bold text-slate-800 text-lg mb-4">Gestión de Categorías</h2>
+            <form id="categoryForm" onsubmit="saveCategory(event)" class="flex gap-3 mb-4">
+                <input type="text" id="catName" placeholder="Nombre de categoría (ej. 🥖 Panadería)" required class="flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                <button type="submit" id="catSubmitBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
+                    + Agregar Categoría
+                </button>
+            </form>
+            <div id="adminCategoryList" class="flex flex-wrap gap-2 pt-2 border-t">
+                <p class="text-xs text-slate-400">Cargando categorías...</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: Formulario Agregar Producto -->
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-8">
             <h2 class="font-bold text-slate-800 text-lg mb-4">Agregar Nuevo Producto</h2>
             <form id="productForm" class="space-y-4">
@@ -37,11 +51,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Categoría *</label>
                         <select id="prodCategory" required class="w-full px-3 py-2 border rounded-xl text-sm">
-                            <option value="combos">🔥 Combos de Oferta</option>
-                            <option value="carnes">🥩 Cárnicos</option>
-                            <option value="despensa">🌾 Despensa & Granos</option>
-                            <option value="aseo">🧼 Aseo e Higiene</option>
-                            <option value="bebidas">🥤 Bebidas</option>
+                            <option value="">Cargando categorías...</option>
                         </select>
                     </div>
                     <div>
@@ -82,7 +92,7 @@
             </form>
         </div>
 
-        <!-- Lista de Productos Existentes -->
+        <!-- SECCIÓN 3: Lista de Productos Existentes -->
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
             <h2 class="font-bold text-slate-800 text-lg mb-4">Inventario Actual</h2>
             <div id="adminProductList" class="space-y-3">
@@ -121,11 +131,6 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
                     <select id="editProdCategory" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <option value="combos">🔥 Combos de Oferta</option>
-                        <option value="carnes">🥩 Cárnicos</option>
-                        <option value="despensa">🌾 Despensa & Granos</option>
-                        <option value="aseo">🧼 Aseo e Higiene</option>
-                        <option value="bebidas">🥤 Bebidas</option>
                     </select>
                 </div>
 
@@ -147,6 +152,7 @@
         const ADMIN_PASSWORD = "1234";
 
         window.spClient = null;
+        let categoriesCache = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             try {
@@ -172,16 +178,99 @@
             if (pass === ADMIN_PASSWORD) {
                 document.getElementById('loginModal').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
+                loadCategories();
                 loadAdminProducts();
             } else {
                 alert("Contraseña incorrecta");
             }
         }
 
+        // --- LÓGICA DE CATEGORÍAS ---
+        async function loadCategories() {
+            if (!window.spClient) return;
+            const { data, error } = await window.spClient.from('categories').select('*');
+            
+            if (error) {
+                console.error("Error cargando categorías:", error.message);
+                return;
+            }
+
+            categoriesCache = data || [];
+            renderCategoryOptions();
+            renderCategoryChips();
+        }
+
+        function renderCategoryOptions() {
+            const selects = [document.getElementById('prodCategory'), document.getElementById('editProdCategory')];
+            const optionsHTML = categoriesCache.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            
+            selects.forEach(select => {
+                if (select) select.innerHTML = optionsHTML;
+            });
+        }
+
+        function renderCategoryChips() {
+            const list = document.getElementById('adminCategoryList');
+            if (!list) return;
+
+            if (categoriesCache.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400">No hay categorías registradas.</p>`;
+                return;
+            }
+
+            list.innerHTML = categoriesCache.map(c => `
+                <div class="flex items-center gap-2 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-slate-200">
+                    <span>${c.name}</span>
+                    <button onclick="deleteCategory('${c.id}')" class="text-slate-400 hover:text-red-500 font-bold ml-1">✕</button>
+                </div>
+            `).join('');
+        }
+
+        async function saveCategory(e) {
+            e.preventDefault();
+            if (!window.spClient) return;
+
+            const nameInput = document.getElementById('catName');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            const id = name.toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-z0-9]/g, '');
+
+            const btn = document.getElementById('catSubmitBtn');
+            btn.disabled = true;
+
+            try {
+                const { error } = await window.spClient.from('categories').insert([{ id, name }]);
+                if (error) throw error;
+
+                nameInput.value = '';
+                await loadCategories();
+            } catch (err) {
+                alert("Error al guardar categoría: " + err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (!window.spClient) return;
+            if (confirm(`¿Seguro que deseas eliminar esta categoría?`)) {
+                const { error } = await window.spClient.from('categories').delete().eq('id', id);
+                if (error) {
+                    alert("Error al eliminar: " + error.message);
+                } else {
+                    loadCategories();
+                }
+            }
+        }
+
+        // --- LÓGICA DE PRODUCTOS ---
         async function saveProduct(e) {
             e.preventDefault();
             if (!window.spClient) {
-                alert("Error de conexión con Supabase. Revisa tus credenciales.");
+                alert("Error de conexión con Supabase.");
                 return;
             }
 
@@ -281,7 +370,7 @@
                             Editar
                         </button>
                         <button onclick="toggleAgotado(${p.id}, '${p.badge || ''}')" class="text-xs px-2.5 py-1 rounded-lg font-bold ${p.badge === 'Agotado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${p.badge === 'Agotado' ? 'Reactivar' : 'Agotado'}
+                            ${p.badge === 'Agotado' ? 'Reactivar' : 'Marcar Agotado'}
                         </button>
                         <button onclick="deleteProduct(${p.id})" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-red-100 text-red-600 hover:bg-red-200">
                             Eliminar
