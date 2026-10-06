@@ -1,14 +1,23 @@
 const WHATSAPP_NUMBER = "5359208138";
 
-const categories = [
-    { id: 'all', name: 'Todos' },            
-    { id: 'carnes', name: '🥩 Cárnicos' },
-    { id: 'despensa', name: '🌾 Despensa & Granos' },
-    { id: 'aseo', name: '🧼 Aseo e Higiene' },
-    { id: 'bebidas', name: '🥤 Bebidas' },
-    { id: 'combos', name: '🔥 Combos de Oferta' }
+// Arreglo dinámico de categorías
+let categories = [
+    { id: 'all', name: 'Todos' }
 ];
+async function fetchCategoriesFromSupabase() {
+    try {
+        if (!window.spClient) return;
+        const { data, error } = await window.spClient.from('categories').select('*');
+        if (error) throw error;
 
+        if (data && data.length > 0) {
+            categories = [{ id: 'all', name: 'Todos' }, ...data];
+            renderCategories();
+        }
+    } catch (err) {
+        console.error("Error al cargar categorías en la tienda:", err.message);
+    }
+}
 // Configuración del cliente Supabase
 const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co"; 
 const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";
@@ -76,6 +85,7 @@ function formatPrice(price, currency = 'CUP') {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    fetchCategoriesFromSupabase(); // Carga categorias dinamicas
     fetchProductsFromSupabase(); // Carga asíncrona desde Supabase
     renderCategories();
     updateCartUI();
