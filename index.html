@@ -188,5 +188,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Script Principal JavaScript -->
     <script src="app.js"></script>
+
+    <!-- Modal de Vista Previa / Lightbox para Imágenes -->
+<div id="imageModal" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center hidden p-4 transition-opacity duration-300" onclick="closeImageModal()">
+    <div class="relative max-w-3xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
+        <!-- Botón para cerrar -->
+        <button onclick="closeImageModal()" class="absolute -top-10 right-0 text-white hover:text-emerald-400 p-2 transition">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+
+        <!-- Imagen Ampliada -->
+        <img id="modalImage" src="" alt="Vista Previa" class="max-h-[80vh] w-auto max-w-full rounded-2xl shadow-2xl object-contain border border-slate-700/50">
+
+        <!-- Título del producto en el modal -->
+        <h3 id="modalTitle" class="text-white font-bold text-base sm:text-lg mt-3 text-center"></h3>
+    </div>
+</div>
 </body>
 </html>

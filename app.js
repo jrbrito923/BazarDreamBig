@@ -412,3 +412,8 @@ async function updateVisitCount() {
         if (countElement) countElement.textContent = '1';
     }
 }
+// Ejemplo al renderizar la tarjeta en app.js:
+`<img src="${product.image}" 
+      alt="${product.name}" 
+      onclick="openImageModal('${product.image}', '${escapeQuotes(product.name)}')" 
+      class="w-full h-36 sm:h-48 object-cover rounded-xl cursor-pointer hover:opacity-95 transition">`
