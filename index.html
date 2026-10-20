@@ -24,14 +24,14 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-  @keyframes skeleton-pulse {
-    0%, 100% { opacity: 1; background-color: #e2e8f0; }
-    50% { opacity: 0.5; background-color: #cbd5e1; }
-  }
-  .skeleton-bg {
-    animation: skeleton-pulse 1.5s infinite ease-in-out;
-  }
-</style>
+      @keyframes skeleton-pulse {
+        0%, 100% { opacity: 1; background-color: #e2e8f0; }
+        50% { opacity: 0.5; background-color: #cbd5e1; }
+      }
+      .skeleton-bg {
+        animation: skeleton-pulse 1.5s infinite ease-in-out;
+      }
+    </style>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -169,6 +169,22 @@
         </div>
     </div>
 
+    <!-- Modal de Vista Previa / Lightbox para Imágenes -->
+    <div id="imageModal" class="hidden fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300" onclick="closeImageModal()">
+        <div class="relative max-w-3xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
+            <!-- Botón para cerrar -->
+            <button onclick="closeImageModal()" class="absolute -top-10 right-0 text-white hover:text-emerald-400 p-2 transition">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+
+            <!-- Imagen Ampliada -->
+            <img id="modalImage" src="" alt="Vista Previa" class="max-h-[80vh] w-auto max-w-full rounded-2xl shadow-2xl object-contain border border-slate-700/50">
+
+            <!-- Título del producto en el modal -->
+            <h3 id="modalTitle" class="text-white font-bold text-base sm:text-lg mt-3 text-center"></h3>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="mt-auto bg-slate-900 text-slate-300">
         <div class="bg-emerald-600 text-white text-xs sm:text-sm font-medium py-2.5 px-4 text-center flex items-center justify-center gap-2">
@@ -184,25 +200,10 @@
             </div>
         </div>
     </footer>
-    <!-- carga supabase -->
+
+    <!-- Carga de SDK Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Script Principal JavaScript -->
     <script src="app.js"></script>
-
-    <!-- Modal de Vista Previa / Lightbox para Imágenes -->
-<div id="imageModal" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center hidden p-4 transition-opacity duration-300" onclick="closeImageModal()">
-    <div class="relative max-w-3xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
-        <!-- Botón para cerrar -->
-        <button onclick="closeImageModal()" class="absolute -top-10 right-0 text-white hover:text-emerald-400 p-2 transition">
-            <i data-lucide="x" class="w-8 h-8"></i>
-        </button>
-
-        <!-- Imagen Ampliada -->
-        <img id="modalImage" src="" alt="Vista Previa" class="max-h-[80vh] w-auto max-w-full rounded-2xl shadow-2xl object-contain border border-slate-700/50">
-
-        <!-- Título del producto en el modal -->
-        <h3 id="modalTitle" class="text-white font-bold text-base sm:text-lg mt-3 text-center"></h3>
-    </div>
-</div>
 </body>
 </html>
