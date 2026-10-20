@@ -1,9 +1,10 @@
 const WHATSAPP_NUMBER = "5359208138";
 
-// Arreglo dinámico de categorías
+// Arreglo dinamico de categorias
 let categories = [
     { id: 'all', name: 'Todos' }
 ];
+
 async function fetchCategoriesFromSupabase() {
     try {
         if (!window.spClient) return;
@@ -15,10 +16,11 @@ async function fetchCategoriesFromSupabase() {
             renderCategories();
         }
     } catch (err) {
-        console.error("Error al cargar categorías en la tienda:", err.message);
+        console.error("Error al cargar categorias en la tienda:", err.message);
     }
 }
-// Configuración del cliente Supabase
+
+// Configuracion del cliente Supabase
 const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co"; 
 const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";
 
@@ -28,7 +30,7 @@ if (window.supabase && typeof window.supabase.createClient === 'function') {
     window.spClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
-// Arreglo de productos (se llenará desde la base de datos)
+// Arreglo de productos
 let products = [];
 
 async function fetchProductsFromSupabase() {
@@ -38,7 +40,6 @@ async function fetchProductsFromSupabase() {
             return;
         }
 
-        // --- CORRECCIÓN CLAVE: Se usa window.spClient en lugar de supabase ---
         const { data, error } = await window.spClient
             .from('products')
             .select('*')
@@ -59,7 +60,6 @@ async function fetchProductsFromSupabase() {
                 description: p.description
             }));
 
-            // Dibujamos las tarjetas en pantalla cuando ya tenemos la información
             renderProducts();
         }
     } catch (err) {
@@ -67,7 +67,7 @@ async function fetchProductsFromSupabase() {
     }
 }
 
-// Cargar el carrito guardado en localStorage
+// Cargar carrito desde localStorage
 let cart = JSON.parse(localStorage.getItem('bazar_cart')) || [];
 let currentCategory = 'all';
 let searchQuery = '';
@@ -80,13 +80,17 @@ function normalizeText(text) {
     return text ? text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : '';
 }
 
+function escapeQuotes(str) {
+    return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
+}
+
 function formatPrice(price, currency = 'CUP') {
     return currency === 'USD' ? `$${price.toFixed(2)} USD` : `$${price.toLocaleString()} CUP`;
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    fetchCategoriesFromSupabase(); // Carga categorias dinamicas
-    fetchProductsFromSupabase(); // Carga asíncrona desde Supabase
+    fetchCategoriesFromSupabase();
+    fetchProductsFromSupabase();
     renderCategories();
     updateCartUI();
     updateVisitCount();
@@ -148,16 +152,14 @@ function selectCategory(catId) {
     if (titleElem) titleElem.innerText = catObj ? catObj.name : 'Productos';
 }
 
-// Renderizador con filtrado automático por Categoría y Búsqueda
 function renderProducts() {
     const grid = document.getElementById('productGrid');
     
     if (!grid) {
-        console.error("No se encontró el contenedor 'productGrid' en el DOM.");
+        console.error("No se encontro el contenedor 'productGrid' en el DOM.");
         return;
     }
 
-    // Filtrar por categoría y texto de búsqueda
     let filtered = products.filter(p => {
         const matchCategory = currentCategory === 'all' || p.category === currentCategory;
         const matchSearch = searchQuery === '' || normalizeText(p.name).includes(searchQuery) || normalizeText(p.description).includes(searchQuery);
@@ -167,7 +169,7 @@ function renderProducts() {
     if (filtered.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full text-center py-12 text-slate-400">
-                <p class="text-lg font-medium">No hay productos disponibles en esta categoría o búsqueda.</p>
+                <p class="text-lg font-medium">No hay productos disponibles en esta categoria o busqueda.</p>
             </div>
         `;
         return;
@@ -191,7 +193,8 @@ function renderProducts() {
                     <img 
                         src="${imageUrl}" 
                         alt="${product.name}" 
-                        class="w-full h-48 object-cover ${isAgotado ? 'grayscale opacity-75' : ''}"
+                        onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}')" 
+                        class="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition ${isAgotado ? 'grayscale opacity-75' : ''}"
                         onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=Imagen+No+Disponible';"
                     >
                     ${product.badge ? `
@@ -207,7 +210,7 @@ function renderProducts() {
                             ${product.name}
                         </h3>
                         <p class="text-xs text-slate-500 line-clamp-2 mb-3">
-                            ${product.description || 'Sin descripción disponible.'}
+                            ${product.description || 'Sin descripcion disponible.'}
                         </p>
                     </div>
 
@@ -235,6 +238,32 @@ function renderProducts() {
         `;
     }).join('');
 }
+
+function openImageModal(imageUrl, title) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+
+    if (!modal || !modalImg) return;
+
+    modalImg.src = imageUrl;
+    if (modalTitle) modalTitle.innerText = title || '';
+    
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    if (!modal) return;
+
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeImageModal();
+});
 
 function addToCart(productId) {
     const product = products.find(p => p.id === productId);
@@ -297,8 +326,8 @@ function updateCartUI() {
             cartItemsContainer.innerHTML = `
                 <div class="text-center py-12">
                     <i data-lucide="shopping-bag" class="w-12 h-12 text-slate-300 mx-auto mb-3"></i>
-                    <p class="text-sm font-semibold text-slate-700">Tu carrito está vacío</p>
-                    <p class="text-xs text-slate-400 mt-1">Explora nuestro catálogo y agrega productos para realizar tu pedido.</p>
+                    <p class="text-sm font-semibold text-slate-700">Tu carrito esta vacio</p>
+                    <p class="text-xs text-slate-400 mt-1">Explora nuestro catalogo y agrega productos para realizar tu pedido.</p>
                 </div>
             `;
         } else {
@@ -357,16 +386,16 @@ function sendOrderWhatsApp() {
     const notes = notesElem ? notesElem.value.trim() : '';
 
     if (!name || !phone || !location || !address) {
-        alert("Por favor completa los campos obligatorios del formulario (Nombre, Teléfono, Municipio y Dirección).");
+        alert("Por favor completa los campos obligatorios del formulario (Nombre, Telefono, Municipio y Direccion).");
         return;
     }
 
     let message = `🛒 *NUEVO PEDIDO - BAZAR DREAM BIG*\n`;
     message += `-----------------------------------\n`;
     message += `👤 *Cliente:* ${name}\n`;
-    message += `📞 *Teléfono:* ${phone}\n`;
+    message += `📞 *Telefono:* ${phone}\n`;
     message += `📍 *Municipio / Zona:* ${location}\n`;
-    message += `🏠 *Dirección:* ${address}\n`;
+    message += `🏠 *Direccion:* ${address}\n`;
     if (notes) {
         message += `📝 *Notas:* ${notes}\n`;
     }
@@ -374,7 +403,8 @@ function sendOrderWhatsApp() {
     message += `📋 *DETALLE DEL PEDIDO:*\n\n`;
 
     cart.forEach((item, index) => {
-        message += `${index + 1}. *${item.name}*\n   ${item.quantity}x @ ${formatPrice(item.price, item.currency)} = *${formatPrice(item.price * item.quantity, item.currency)}*\n`;
+        const itemTotal = item.price * item.quantity;
+        message += `${index + 1}. *${item.name}*\n   ${item.quantity}x @ ${formatPrice(item.price, item.currency)} = *${formatPrice(itemTotal, item.currency)}*\n`;
     });
 
     const totalCUP = cart.filter(i => i.currency === 'CUP').reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -382,10 +412,10 @@ function sendOrderWhatsApp() {
 
     message += `\n-----------------------------------\n`;
     message += `💰 *TOTAL ESTIMADO:*`;
-    if (totalCUP > 0) message += `\n- $${totalCUP.toLocaleString()} CUP`;
-    if (totalUSD > 0) message += `\n- $${totalUSD.toFixed(2)} USD`;
+    if (totalCUP > 0) message += `\n$${totalCUP.toLocaleString()} CUP`;
+    if (totalUSD > 0) message += `\n$${totalUSD.toFixed(2)} USD`;
     message += `\n-----------------------------------\n`;
-    message += `Por favor, confirmemos disponibilidad y método de pago para completar el envío. ¡Gracias!`;
+    message += `Por favor, confirmemos disponibilidad y metodo de pago para completar el envio. Gracias!`;
 
     cart = [];
     saveCart();
@@ -395,7 +425,6 @@ function sendOrderWhatsApp() {
     window.open(encodedUrl, '_blank');
 }
 
-// Contador de visitas
 async function updateVisitCount() {
     try {
         const key = 'bazar_drem_big_visitas_2026';
@@ -412,8 +441,3 @@ async function updateVisitCount() {
         if (countElement) countElement.textContent = '1';
     }
 }
-// Ejemplo al renderizar la tarjeta en app.js:
-`<img src="${product.image}" 
-      alt="${product.name}" 
-      onclick="openImageModal('${product.image}', '${escapeQuotes(product.name)}')" 
-      class="w-full h-36 sm:h-48 object-cover rounded-xl cursor-pointer hover:opacity-95 transition">`
