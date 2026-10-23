@@ -76,8 +76,17 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Imagen del Producto * (Se comprime automáticamente)</label>
-                        <input type="file" id="prodImageFile" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Imagen del Producto *</label>
+                        <input type="file" id="prodImageFile" accept="image/*" required onchange="previewImage(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                    </div>
+                </div>
+
+                <!-- Contenedor de Vista Previa de la Imagen -->
+                <div id="imagePreviewContainer" class="hidden flex items-center gap-3 p-3 bg-slate-50 border rounded-xl">
+                    <img id="imagePreview" src="" alt="Vista previa" class="w-16 h-16 rounded-lg object-cover border">
+                    <div>
+                        <p class="text-xs font-bold text-slate-700">Vista previa de la imagen</p>
+                        <p id="imageInfo" class="text-[11px] text-slate-500"></p>
                     </div>
                 </div>
 
@@ -92,9 +101,12 @@
             </form>
         </div>
 
-        <!-- SECCIÓN 3: Lista de Productos Existentes -->
+        <!-- SECCIÓN 3: Lista de Productos Existentes (Con Buscador) -->
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-            <h2 class="font-bold text-slate-800 text-lg mb-4">Inventario Actual</h2>
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+                <h2 class="font-bold text-slate-800 text-lg">Inventario Actual</h2>
+                <input type="text" id="adminSearchInput" oninput="filterAdminProducts()" placeholder="Buscar en el inventario..." class="w-full sm:w-64 px-3 py-1.5 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
             <div id="adminProductList" class="space-y-3">
                 <p class="text-xs text-slate-400">Cargando productos...</p>
             </div>
@@ -134,6 +146,11 @@
                     </select>
                 </div>
 
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción</label>
+                    <textarea id="editProdDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                </div>
+
                 <div class="flex gap-2 pt-2">
                     <button type="button" onclick="closeEditModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-200 transition">
                         Cancelar
@@ -153,6 +170,7 @@
 
         window.spClient = null;
         let categoriesCache = [];
+        let allAdminProducts = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             try {
@@ -266,7 +284,23 @@
             }
         }
 
-        // --- FUNCIÓN DE COMPRESIÓN DE IMÁGENES ---
+        // --- VISTA PREVIA DE IMAGEN ---
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const container = document.getElementById('imagePreviewContainer');
+            const preview = document.getElementById('imagePreview');
+            const info = document.getElementById('imageInfo');
+
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                info.innerText = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        // --- COMPRESIÓN DE IMÁGENES ---
         async function compressImage(file, maxWidth = 1000, quality = 0.75) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -325,11 +359,7 @@
                 const file = fileInput.files[0];
                 if (!file) throw new Error("Debes seleccionar una imagen.");
 
-                console.log("Tamaño original:", (file.size / 1024).toFixed(2), "KB");
-
-                // Comprimir la imagen antes de subirla
                 const compressedFile = await compressImage(file, 1000, 0.75);
-                console.log("Tamaño comprimido:", (compressedFile.size / 1024).toFixed(2), "KB");
 
                 const extension = 'jpg';
                 const cleanBaseName = file.name
@@ -376,6 +406,7 @@
 
                 alert("¡Producto agregado exitosamente con imagen optimizada!");
                 document.getElementById('productForm').reset();
+                document.getElementById('imagePreviewContainer').classList.add('hidden');
                 loadAdminProducts();
 
             } catch (err) {
@@ -388,23 +419,30 @@
 
         async function loadAdminProducts() {
             if (!window.spClient) return;
-            const list = document.getElementById('adminProductList');
             const { data, error } = await window.spClient
                 .from('products')
                 .select('*')
                 .order('id', { ascending: false });
 
             if (error) {
-                list.innerHTML = `<p class="text-xs text-red-500">Error cargando inventario: ${error.message}</p>`;
+                console.error("Error cargando inventario:", error.message);
                 return;
             }
 
-            if (!data || data.length === 0) {
-                list.innerHTML = `<p class="text-xs text-slate-400">No hay productos en la base de datos todavía.</p>`;
+            allAdminProducts = data || [];
+            renderAdminProductsList(allAdminProducts);
+        }
+
+        function renderAdminProductsList(productsArray) {
+            const list = document.getElementById('adminProductList');
+            if (!list) return;
+
+            if (productsArray.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400">No se encontraron productos.</p>`;
                 return;
             }
 
-            list.innerHTML = data.map(p => `
+            list.innerHTML = productsArray.map(p => `
                 <div class="flex items-center justify-between p-3 border rounded-xl bg-slate-50">
                     <div class="flex items-center gap-3">
                         <img src="${p.image}" class="w-12 h-12 rounded-lg object-cover" onerror="this.src='https://via.placeholder.com/50'">
@@ -414,13 +452,13 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="openEditModal(${p.id}, '${escapeQuotes(p.name)}', ${p.price}, '${p.currency || 'CUP'}', '${p.category}')" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
+                        <button onclick="openEditModal(${p.id}, '${escapeQuotes(p.name)}', ${p.price}, '${p.currency || 'CUP'}', '${p.category}', '${escapeQuotes(p.description || '')}')" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
                             Editar
                         </button>
                         <button onclick="toggleAgotado(${p.id}, '${p.badge || ''}')" class="text-xs px-2.5 py-1 rounded-lg font-bold ${p.badge === 'Agotado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
                             ${p.badge === 'Agotado' ? 'Reactivar' : 'Marcar Agotado'}
                         </button>
-                        <button onclick="deleteProduct(${p.id})" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-red-100 text-red-600 hover:bg-red-200">
+                        <button onclick="deleteProduct(${p.id}, '${p.image}')" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-red-100 text-red-600 hover:bg-red-200">
                             Eliminar
                         </button>
                     </div>
@@ -428,16 +466,47 @@
             `).join('');
         }
 
+        function filterAdminProducts() {
+            const query = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+            if (!query) {
+                renderAdminProductsList(allAdminProducts);
+                return;
+            }
+
+            const filtered = allAdminProducts.filter(p => p.name.toLowerCase().includes(query));
+            renderAdminProductsList(filtered);
+        }
+
         function escapeQuotes(str) {
             return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
         }
 
-        function openEditModal(id, name, price, currency, category) {
+        async function deleteProduct(id, imageUrl) {
+            if (!window.spClient) return;
+            if (confirm("¿Seguro que deseas eliminar este producto y su imagen del servidor?")) {
+                try {
+                    if (imageUrl && imageUrl.includes('/productos/')) {
+                        const fileName = imageUrl.split('/productos/').pop();
+                        await window.spClient.storage.from('productos').remove([fileName]);
+                    }
+
+                    const { error } = await window.spClient.from('products').delete().eq('id', id);
+                    if (error) throw error;
+
+                    loadAdminProducts();
+                } catch (err) {
+                    alert("Error al eliminar el producto: " + err.message);
+                }
+            }
+        }
+
+        function openEditModal(id, name, price, currency, category, description) {
             document.getElementById('editProdId').value = id;
             document.getElementById('editProdName').value = name;
             document.getElementById('editProdPrice').value = price;
             document.getElementById('editProdCurrency').value = currency;
             document.getElementById('editProdCategory').value = category;
+            document.getElementById('editProdDescription').value = description || '';
 
             document.getElementById('editModal').classList.remove('hidden');
         }
@@ -459,7 +528,8 @@
                 name: document.getElementById('editProdName').value.trim(),
                 price: parseFloat(document.getElementById('editProdPrice').value),
                 currency: document.getElementById('editProdCurrency').value,
-                category: document.getElementById('editProdCategory').value
+                category: document.getElementById('editProdCategory').value,
+                description: document.getElementById('editProdDescription').value.trim()
             };
 
             try {
@@ -489,14 +559,6 @@
 
             await window.spClient.from('products').update({ badge: newBadge, badge_color: newColor }).eq('id', id);
             loadAdminProducts();
-        }
-
-        async function deleteProduct(id) {
-            if (!window.spClient) return;
-            if (confirm("¿Seguro que deseas eliminar este producto?")) {
-                await window.spClient.from('products').delete().eq('id', id);
-                loadAdminProducts();
-            }
         }
     </script>
 </body>
