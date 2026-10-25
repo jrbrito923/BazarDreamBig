@@ -154,7 +154,6 @@ function selectCategory(catId) {
 
 function renderProducts() {
     const grid = document.getElementById('productGrid');
-    
     if (!grid) return;
 
     let filtered = products.filter(p => {
@@ -184,12 +183,12 @@ function renderProducts() {
         const isAgotado = product.badge && product.badge.toLowerCase() === 'agotado';
         const badgeColor = product.badgeColor || (isAgotado ? 'bg-red-500' : 'bg-emerald-600');
         
-        // Guardamos la descripción de forma segura codificada en base64 para evitar saltos de línea
-        const encodedDesc = btoa(encodeURIComponent(product.description || 'Sin descripción adicional.'));
+        // Limpiamos comillas y saltos de línea para pasarlo de forma segura al modal
+        const safeDesc = product.description ? product.description.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/g, '\\n') : 'Sin descripción adicional.';
 
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
-                <div class="relative cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${encodedDesc}')">
+                <div class="relative cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${safeDesc}')">
                     <img 
                         src="${imageUrl}" 
                         alt="${product.name}" 
@@ -204,7 +203,7 @@ function renderProducts() {
                 </div>
 
                 <div class="p-4 flex-1 flex flex-col justify-between">
-                    <div class="cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${encodedDesc}')">
+                    <div class="cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${safeDesc}')">
                         <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-snug mb-1">
                             ${product.name}
                         </h3>
@@ -238,7 +237,7 @@ function renderProducts() {
     }).join('');
 }
 
-function openImageModal(imageUrl, title, encodedDescription) {
+function openImageModal(imageUrl, title, description) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     const modalTitle = document.getElementById('modalTitle');
@@ -249,14 +248,9 @@ function openImageModal(imageUrl, title, encodedDescription) {
     modalImg.src = imageUrl;
     if (modalTitle) modalTitle.innerText = title || '';
     
+    // Reemplazamos los saltos de línea internos por saltos reales para que se vea ordenado
     if (modalDesc) {
-        try {
-            // Decodificar la descripción de forma segura
-            const decodedDesc = decodeURIComponent(escape(atob(encodedDescription)));
-            modalDesc.innerText = decodedDesc;
-        } catch (e) {
-            modalDesc.innerText = encodedDescription || 'Sin descripción adicional.';
-        }
+        modalDesc.innerText = description ? description.replace(/\\n/g, '\n') : 'Sin descripción adicional.';
     }
     
     modal.classList.remove('hidden');
