@@ -189,12 +189,11 @@ function renderProducts() {
 
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
-                <div class="relative">
+                <div class="relative cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${escapeQuotes(product.description)}')">
                     <img 
                         src="${imageUrl}" 
                         alt="${product.name}" 
-                        onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}')" 
-                        class="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition ${isAgotado ? 'grayscale opacity-75' : ''}"
+                        class="w-full h-48 object-cover hover:opacity-90 transition ${isAgotado ? 'grayscale opacity-75' : ''}"
                         onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=Imagen+No+Disponible';"
                     >
                     ${product.badge ? `
@@ -205,12 +204,12 @@ function renderProducts() {
                 </div>
 
                 <div class="p-4 flex-1 flex flex-col justify-between">
-                    <div>
+                    <div class="cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${escapeQuotes(product.description)}')">
                         <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-snug mb-1">
                             ${product.name}
                         </h3>
                         <p class="text-xs text-slate-500 line-clamp-2 mb-3">
-                            ${product.description || 'Sin descripcion disponible.'}
+                            ${product.description || 'Sin descripcion disponible. Toca para mas detalles.'}
                         </p>
                     </div>
 
@@ -239,15 +238,17 @@ function renderProducts() {
     }).join('');
 }
 
-function openImageModal(imageUrl, title) {
+function openImageModal(imageUrl, title, description) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDescription');
 
     if (!modal || !modalImg) return;
 
     modalImg.src = imageUrl;
     if (modalTitle) modalTitle.innerText = title || '';
+    if (modalDesc) modalDesc.innerText = description || 'Sin descripción adicional.';
     
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
