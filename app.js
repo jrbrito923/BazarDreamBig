@@ -238,7 +238,7 @@ function renderProducts() {
     }).join('');
 }
 
-function openImageModal(imageUrl, title, description) {
+function openImageModal(imageUrl, title, encodedDescription) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     const modalTitle = document.getElementById('modalTitle');
@@ -248,7 +248,16 @@ function openImageModal(imageUrl, title, description) {
 
     modalImg.src = imageUrl;
     if (modalTitle) modalTitle.innerText = title || '';
-    if (modalDesc) modalDesc.innerText = description || 'Sin descripción adicional.';
+    
+    if (modalDesc) {
+        try {
+            // Decodificar la descripción de forma segura
+            const decodedDesc = decodeURIComponent(escape(atob(encodedDescription)));
+            modalDesc.innerText = decodedDesc;
+        } catch (e) {
+            modalDesc.innerText = encodedDescription || 'Sin descripción adicional.';
+        }
+    }
     
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
