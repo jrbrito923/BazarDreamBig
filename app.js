@@ -61,7 +61,8 @@ async function fetchProductsFromSupabase() {
             }));
 
             renderProducts();
-            initPromoBanner(); // Inicializa el banner con los productos cargados
+            initPromoBanner(); 
+
         }
     } catch (err) {
         console.error("Error cargando productos desde Supabase:", err.message);
