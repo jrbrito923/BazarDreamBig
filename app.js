@@ -62,7 +62,6 @@ async function fetchProductsFromSupabase() {
 
             renderProducts();
             initPromoBanner(); 
-
         }
     } catch (err) {
         console.error("Error cargando productos desde Supabase:", err.message);
@@ -185,7 +184,6 @@ function renderProducts() {
         const isAgotado = product.badge && product.badge.toLowerCase() === 'agotado';
         const badgeColor = product.badgeColor || (isAgotado ? 'bg-red-500' : 'bg-emerald-600');
         
-        // Limpiamos comillas y saltos de línea para pasarlo de forma segura al modal
         const safeDesc = product.description ? product.description.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/g, '\\n') : 'Sin descripción adicional.';
 
         return `
@@ -250,12 +248,11 @@ function openImageModal(imageUrl, title, description) {
     modalImg.src = imageUrl;
     if (modalTitle) modalTitle.innerText = title || '';
     
-    // Reemplazamos los saltos de línea internos por saltos reales para que se vea ordenado
     if (modalDesc) {
         modalDesc.innerText = description ? description.replace(/\\n/g, '\n') : 'Sin descripción adicional.';
     }
     
-    modal.classList.remove('hidden');
+    modal.classList.add('hidden');
     document.body.style.overflow = 'hidden';
 }
 
@@ -447,26 +444,29 @@ async function updateVisitCount() {
         if (countElement) countElement.textContent = '1';
     }
 }
-// --- LÓGICA DEL BANNER ROTATIVO ---
+
+// --- LÓGICA DEL BANNER ROTATIVO (CORREGIDA Y ROBUSTA) ---
 let bannerProducts = [];
 let currentBannerIndex = 0;
 let bannerInterval = null;
 
 function initPromoBanner() {
-    // Tomamos todos los productos disponibles que no estén marcados como agotados
+    const bannerContainer = document.getElementById('promoBanner');
+    if (!bannerContainer) return;
+
+    // Tomamos todos los productos que no estén marcados como agotados
     bannerProducts = products.filter(p => !p.badge || p.badge.toLowerCase() !== 'agotado');
     
-    // Si todos estuvieran agotados, tomamos el catálogo completo para que el banner siempre funcione
+    // Si todos están agotados o no hay suficientes, tomamos todos los productos del inventario
     if (bannerProducts.length === 0 && products.length > 0) {
         bannerProducts = products;
     }
 
-    const bannerContainer = document.getElementById('promoBanner');
     if (bannerProducts.length === 0) {
-        if (bannerContainer) bannerContainer.parentElement.style.display = 'none';
+        bannerContainer.parentElement.style.display = 'none';
         return;
     } else {
-        if (bannerContainer) bannerContainer.parentElement.style.display = 'block';
+        bannerContainer.parentElement.style.display = 'block';
     }
 
     renderBannerItem();
@@ -486,14 +486,13 @@ function renderBannerItem() {
 
     if (imgElem) imgElem.src = p.image || 'https://via.placeholder.com/150';
     if (badgeElem) {
-        badgeElem.innerText = p.badge || 'Destacado del Día';
+        badgeElem.innerText = p.badge || 'Destacado';
         badgeElem.className = `inline-block text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm ${p.badgeColor || 'bg-emerald-600'}`;
     }
     if (titleElem) titleElem.innerText = p.name;
     if (descElem) descElem.innerText = p.description || '¡Aprovecha esta recomendación especial de nuestro bazar!';
-    if (priceElem) priceElem.innerText = `${formatPrice(p.price, p.currency)}`;
+    if (priceElem) priceElem.innerText = formatPrice(p.price, p.currency);
     
-    // Codificar descripción para el modal del banner de forma segura
     const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/g, '\\n') : 'Sin descripción adicional.';
     if (actionBtn) {
         actionBtn.setAttribute('onclick', `openImageModal('${p.image}', '${escapeQuotes(p.name)}', '${safeDesc}')`);
@@ -525,7 +524,7 @@ function nextBannerSlide() {
 
 function startBannerSlider() {
     if (bannerInterval) clearInterval(bannerInterval);
-    bannerInterval = setInterval(nextBannerSlide, 5000); // Rota cada 5 segundos
+    bannerInterval = setInterval(nextBannerSlide, 5000); 
 }
 
 function resetBannerTimer() {
