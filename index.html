@@ -50,7 +50,36 @@
                     <p class="text-[10px] text-slate-500 font-medium">Tu tienda de confianza</p>
                 </div>
             </div>
-            <!-- Banner Rotativo de Productos Destacados -->
+
+
+            <!-- Buscador (Desktop / Tablet) -->
+            <div class="hidden sm:flex flex-1 max-w-md relative">
+                <input type="text" id="searchInput" placeholder="Buscar productos (ej. arroz, carne, cerveza)..." 
+                       class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                <button id="clearSearch" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Botón de Carrito -->
+            <button onclick="toggleCartModal(true)" class="relative bg-slate-900 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow transition duration-200 flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Ver Pedido</span>
+                <span id="cartTotalHeader" class="font-bold text-emerald-400 sm:border-l sm:border-slate-700 sm:pl-2">$0.00</span>
+                <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-emerald-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow">0</span>
+            </button>
+        </div>
+
+        <!-- Buscador Móvil -->
+        <div class="sm:hidden px-4 pb-3">
+            <div class="relative">
+                <input type="text" id="searchInputMobile" placeholder="Buscar productos..." 
+                       class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            </div>
+        </div>
+        <!-- Banner Rotativo de Productos Destacados -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
     <div id="promoBanner" class="relative bg-gradient-to-r from-emerald-800 to-slate-900 rounded-3xl overflow-hidden shadow-lg text-white p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 transition-all duration-500 min-h-[220px]">
         
@@ -83,34 +112,6 @@
         </div>
     </div>
 </div>
-
-            <!-- Buscador (Desktop / Tablet) -->
-            <div class="hidden sm:flex flex-1 max-w-md relative">
-                <input type="text" id="searchInput" placeholder="Buscar productos (ej. arroz, carne, cerveza)..." 
-                       class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
-                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
-                <button id="clearSearch" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-
-            <!-- Botón de Carrito -->
-            <button onclick="toggleCartModal(true)" class="relative bg-slate-900 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow transition duration-200 flex items-center gap-2">
-                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                <span class="hidden sm:inline">Ver Pedido</span>
-                <span id="cartTotalHeader" class="font-bold text-emerald-400 sm:border-l sm:border-slate-700 sm:pl-2">$0.00</span>
-                <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-emerald-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow">0</span>
-            </button>
-        </div>
-
-        <!-- Buscador Móvil -->
-        <div class="sm:hidden px-4 pb-3">
-            <div class="relative">
-                <input type="text" id="searchInputMobile" placeholder="Buscar productos..." 
-                       class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-xs rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
-                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
-            </div>
-        </div>
     </header>
 
     <!-- Contenido Principal -->
