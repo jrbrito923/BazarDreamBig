@@ -61,6 +61,7 @@ async function fetchProductsFromSupabase() {
             }));
 
             renderProducts();
+            initPromoBanner(); // Inicializa el banner con los productos cargados
         }
     } catch (err) {
         console.error("Error cargando productos desde Supabase:", err.message);
@@ -444,4 +445,86 @@ async function updateVisitCount() {
         const countElement = document.getElementById('visitCount');
         if (countElement) countElement.textContent = '1';
     }
+}
+// --- LÓGICA DEL BANNER ROTATIVO ---
+let bannerProducts = [];
+let currentBannerIndex = 0;
+let bannerInterval = null;
+
+function initPromoBanner() {
+    // Filtramos productos que tengan etiquetas atractivas o tomamos los primeros 5
+    bannerProducts = products.filter(p => p.badge && p.badge !== 'Agotado');
+    
+    // Si no hay suficientes con etiqueta, tomamos hasta 5 productos generales del inventario
+    if (bannerProducts.length === 0 && products.length > 0) {
+        bannerProducts = products.slice(0, 5);
+    }
+
+    if (bannerProducts.length === 0) {
+        const bannerContainer = document.getElementById('promoBanner');
+        if (bannerContainer) bannerContainer.parentElement.style.display = 'none';
+        return;
+    }
+
+    renderBannerItem();
+    startBannerSlider();
+}
+
+function renderBannerItem() {
+    if (bannerProducts.length === 0) return;
+    const p = bannerProducts[currentBannerIndex];
+
+    const imgElem = document.getElementById('bannerImg');
+    const badgeElem = document.getElementById('bannerBadge');
+    const titleElem = document.getElementById('bannerTitle');
+    const descElem = document.getElementById('bannerDesc');
+    const priceElem = document.getElementById('bannerPrice');
+    const actionBtn = document.getElementById('bannerActionBtn');
+
+    if (imgElem) imgElem.src = p.image || 'https://via.placeholder.com/150';
+    if (badgeElem) {
+        badgeElem.innerText = p.badge || 'Destacado del Día';
+        badgeElem.className = `inline-block text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm ${p.badgeColor || 'bg-emerald-600'}`;
+    }
+    if (titleElem) titleElem.innerText = p.name;
+    if (descElem) descElem.innerText = p.description || '¡Aprovecha esta recomendación especial de nuestro bazar!';
+    if (priceElem) priceElem.innerText = `${formatPrice(p.price, p.currency)}`;
+    
+    // Codificar descripción para el modal del banner de forma segura
+    const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/g, '\\n') : 'Sin descripción adicional.';
+    if (actionBtn) {
+        actionBtn.setAttribute('onclick', `openImageModal('${p.image}', '${escapeQuotes(p.name)}', '${safeDesc}')`);
+    }
+
+    renderBannerDots();
+}
+
+function renderBannerDots() {
+    const dotsContainer = document.getElementById('bannerDots');
+    if (!dotsContainer) return;
+
+    dotsContainer.innerHTML = bannerProducts.map((_, index) => `
+        <button onclick="setBannerSlide(${index})" class="w-2.5 h-2.5 rounded-full transition-all ${index === currentBannerIndex ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/70'}"></button>
+    `).join('');
+}
+
+function setBannerSlide(index) {
+    currentBannerIndex = index;
+    renderBannerItem();
+    resetBannerTimer();
+}
+
+function nextBannerSlide() {
+    if (bannerProducts.length === 0) return;
+    currentBannerIndex = (currentBannerIndex + 1) % bannerProducts.length;
+    renderBannerItem();
+}
+
+function startBannerSlider() {
+    if (bannerInterval) clearInterval(bannerInterval);
+    bannerInterval = setInterval(nextBannerSlide, 5000); // Rota cada 5 segundos
+}
+
+function resetBannerTimer() {
+    startBannerSlider();
 }
