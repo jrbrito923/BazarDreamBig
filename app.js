@@ -453,18 +453,20 @@ let currentBannerIndex = 0;
 let bannerInterval = null;
 
 function initPromoBanner() {
-    // Filtramos productos que tengan etiquetas atractivas o tomamos los primeros 5
-    bannerProducts = products.filter(p => p.badge && p.badge !== 'Oferta');
+    // Tomamos todos los productos disponibles que no estén marcados como agotados
+    bannerProducts = products.filter(p => !p.badge || p.badge.toLowerCase() !== 'agotado');
     
-    // Si no hay suficientes con etiqueta, tomamos hasta 5 productos generales del inventario
+    // Si todos estuvieran agotados, tomamos el catálogo completo para que el banner siempre funcione
     if (bannerProducts.length === 0 && products.length > 0) {
-        bannerProducts = products.slice(0, 5);
+        bannerProducts = products;
     }
 
+    const bannerContainer = document.getElementById('promoBanner');
     if (bannerProducts.length === 0) {
-        const bannerContainer = document.getElementById('promoBanner');
         if (bannerContainer) bannerContainer.parentElement.style.display = 'none';
         return;
+    } else {
+        if (bannerContainer) bannerContainer.parentElement.style.display = 'block';
     }
 
     renderBannerItem();
