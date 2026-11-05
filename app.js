@@ -454,7 +454,7 @@ let bannerInterval = null;
 
 function initPromoBanner() {
     // Filtramos productos que tengan etiquetas atractivas o tomamos los primeros 5
-    bannerProducts = products.filter(p => p.badge && p.badge !== 'Agotado');
+    bannerProducts = products.filter(p => p.badge && p.badge !== 'Oferta');
     
     // Si no hay suficientes con etiqueta, tomamos hasta 5 productos generales del inventario
     if (bannerProducts.length === 0 && products.length > 0) {
