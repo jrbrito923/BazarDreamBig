@@ -445,86 +445,33 @@ async function updateVisitCount() {
     }
 }
 
-// --- LÓGICA DEL BANNER ROTATIVO (ACTUALIZADA) ---
+// --- LÓGICA DEL BANNER ROTATIVO (CORREGIDA Y VISIBLE) ---
 let bannerProducts = [];
 let currentBannerIndex = 0;
 let bannerInterval = null;
 
 function initPromoBanner() {
-    const wrapper = document.getElementById('promoBannerWrapper');
-    if (!wrapper) return;
+    const bannerContainer = document.getElementById('promoBanner');
+    if (!bannerContainer) return;
 
-    if (!products || products.length === 0) {
-        wrapper.style.display = 'none';
+    // Aseguramos que el contenedor padre sea visible siempre
+    const parentWrapper = bannerContainer.parentElement;
+    if (parentWrapper) {
+        parentWrapper.style.display = 'block';
+    }
+
+    // Tomamos los productos que no estén agotados, o todo el catálogo si es necesario
+    bannerProducts = products.filter(p => !p.badge || p.badge.toLowerCase() !== 'agotado');
+    
+    if (bannerProducts.length === 0 && products.length > 0) {
+        bannerProducts = products;
+    }
+
+    if (bannerProducts.length === 0) {
+        if (parentWrapper) parentWrapper.style.display = 'none';
         return;
     }
 
-    // Filtramos productos disponibles
-    bannerProducts = products.filter(p => !p.badge || p.badge.toLowerCase() !== 'agotado');
-    
-    if (bannerProducts.length === 0) {
-        bannerProducts = products; // Si todos están agotados, usamos todos
-    }
-
-    wrapper.style.display = 'block';
     renderBannerItem();
-    startBannerSlider();
-}
-
-function renderBannerItem() {
-    if (bannerProducts.length === 0) return;
-    const p = bannerProducts[currentBannerIndex];
-
-    const imgElem = document.getElementById('bannerImg');
-    const badgeElem = document.getElementById('bannerBadge');
-    const titleElem = document.getElementById('bannerTitle');
-    const descElem = document.getElementById('bannerDesc');
-    const priceElem = document.getElementById('bannerPrice');
-    const actionBtn = document.getElementById('bannerActionBtn');
-
-    if (imgElem) imgElem.src = p.image || 'https://via.placeholder.com/150';
-    if (badgeElem) {
-        badgeElem.innerText = p.badge || 'Destacado';
-        badgeElem.className = `inline-block text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm ${p.badgeColor || 'bg-emerald-600'}`;
-    }
-    if (titleElem) titleElem.innerText = p.name;
-    if (descElem) descElem.innerText = p.description || '¡Aprovecha esta recomendación especial de nuestro bazar!';
-    if (priceElem) priceElem.innerText = formatPrice(p.price, p.currency);
-    
-    const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/g, '\\n') : 'Sin descripción adicional.';
-    if (actionBtn) {
-        actionBtn.setAttribute('onclick', `openImageModal('${p.image}', '${escapeQuotes(p.name)}', '${safeDesc}')`);
-    }
-
-    renderBannerDots();
-}
-
-function renderBannerDots() {
-    const dotsContainer = document.getElementById('bannerDots');
-    if (!dotsContainer) return;
-
-    dotsContainer.innerHTML = bannerProducts.map((_, index) => `
-        <button onclick="setBannerSlide(${index})" class="w-2.5 h-2.5 rounded-full transition-all ${index === currentBannerIndex ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/70'}"></button>
-    `).join('');
-}
-
-function setBannerSlide(index) {
-    currentBannerIndex = index;
-    renderBannerItem();
-    resetBannerTimer();
-}
-
-function nextBannerSlide() {
-    if (bannerProducts.length === 0) return;
-    currentBannerIndex = (currentBannerIndex + 1) % bannerProducts.length;
-    renderBannerItem();
-}
-
-function startBannerSlider() {
-    if (bannerInterval) clearInterval(bannerInterval);
-    bannerInterval = setInterval(nextBannerSlide, 5000); 
-}
-
-function resetBannerTimer() {
     startBannerSlider();
 }
