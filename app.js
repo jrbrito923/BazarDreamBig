@@ -445,30 +445,28 @@ async function updateVisitCount() {
     }
 }
 
-// --- LÓGICA DEL BANNER ROTATIVO (CORREGIDA Y ROBUSTA) ---
+// --- LÓGICA DEL BANNER ROTATIVO (ACTUALIZADA) ---
 let bannerProducts = [];
 let currentBannerIndex = 0;
 let bannerInterval = null;
 
 function initPromoBanner() {
-    const bannerContainer = document.getElementById('promoBanner');
-    if (!bannerContainer) return;
+    const wrapper = document.getElementById('promoBannerWrapper');
+    if (!wrapper) return;
 
-    // Tomamos todos los productos que no estén marcados como agotados
+    if (!products || products.length === 0) {
+        wrapper.style.display = 'none';
+        return;
+    }
+
+    // Filtramos productos disponibles
     bannerProducts = products.filter(p => !p.badge || p.badge.toLowerCase() !== 'agotado');
     
-    // Si todos están agotados o no hay suficientes, tomamos todos los productos del inventario
-    if (bannerProducts.length === 0 && products.length > 0) {
-        bannerProducts = products;
-    }
-
     if (bannerProducts.length === 0) {
-        bannerContainer.parentElement.style.display = 'none';
-        return;
-    } else {
-        bannerContainer.parentElement.style.display = 'block';
+        bannerProducts = products; // Si todos están agotados, usamos todos
     }
 
+    wrapper.style.display = 'block';
     renderBannerItem();
     startBannerSlider();
 }
