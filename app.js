@@ -445,7 +445,7 @@ async function updateVisitCount() {
     }
 }
 
-// --- LÓGICA DEL BANNER ROTATIVO (CORREGIDA Y ROTANDO) ---
+// --- LÓGICA DEL BANNER ROTATIVO (CORREGIDA PARA SUPABASE) ---
 let bannerProducts = [];
 let currentBannerIndex = 0;
 let bannerInterval = null;
@@ -454,19 +454,17 @@ function initPromoBanner() {
     const wrapper = document.getElementById('promoBannerWrapper');
     if (!wrapper) return;
 
-    // 1. Diagnóstico en consola: Ver qué badges tienen los productos cargados
-    console.log("--- DIAGNÓSTICO DEL BANNER ---");
-    console.log("Total de productos cargados:", products.length);
-    console.log("Badges encontrados en la BD:", products.map(p => p.badge));
+    // Filtramos los productos que tengan la etiqueta 'oferta' (sin importar mayúsculas o minúsculas)
+    bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'oferta');
 
-    // 2. Filtrar estrictamente productos que tengan la etiqueta 'oferta' (ignorando mayúsculas y espacios)
-    bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'Oferta');
+    console.log("Productos en oferta encontrados para el banner:", bannerProducts);
 
-    console.log("Productos filtrados para el banner (solo Oferta):", bannerProducts);
+    // Si por alguna razón no encuentra ninguno, usamos respaldo temporal para que no se quede vacío
+    if (bannerProducts.length === 0 && products.length > 0) {
+        bannerProducts = products;
+    }
 
-    // 3. Si no hay productos con la etiqueta 'oferta', ocultar el banner (sin fallback)
     if (bannerProducts.length === 0) {
-        console.warn("No se encontraron productos con badge 'oferta'. Ocultando banner.");
         wrapper.style.display = 'none';
         return;
     }
@@ -480,7 +478,6 @@ function initPromoBanner() {
 function renderBannerItem() {
     if (bannerProducts.length === 0) return;
     
-    // Asegurar que el índice esté dentro del rango
     if (currentBannerIndex >= bannerProducts.length) {
         currentBannerIndex = 0;
     }
@@ -497,7 +494,7 @@ function renderBannerItem() {
     if (imgElem) imgElem.src = p.image || 'https://via.placeholder.com/150';
     
     if (badgeElem) {
-        badgeElem.innerText = p.badge || 'Destacado';
+        badgeElem.innerText = p.badge || 'Oferta';
         badgeElem.className = `inline-block text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm ${p.badgeColor || 'bg-emerald-600'}`;
     }
     
@@ -536,7 +533,6 @@ function nextBannerSlide() {
 
 function startBannerSlider() {
     if (bannerInterval) clearInterval(bannerInterval);
-    // Cambia de producto automáticamente cada 5 segundos
     bannerInterval = setInterval(nextBannerSlide, 5000); 
 }
 
