@@ -502,10 +502,14 @@ function renderBannerItem() {
     if (descElem) descElem.innerText = p.description || '¡Aprovecha esta recomendación especial de nuestro bazar!';
     if (priceElem) priceElem.innerText = formatPrice(p.price, p.currency);
     
-    // Configuración segura del botón del banner (aquí está la solución)
+    // Configuración robusta del botón con depuración
     if (actionBtn) {
-        actionBtn.onclick = function() {
+        actionBtn.onclick = function(e) {
+            e.preventDefault();
+            console.log("¡Clic detectado en el botón del banner!");
             const currentProduct = bannerProducts[currentBannerIndex];
+            console.log("Producto actual:", currentProduct);
+            
             if (currentProduct) {
                 openImageModal(
                     currentProduct.image || 'https://via.placeholder.com/150', 
