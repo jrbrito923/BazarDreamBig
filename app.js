@@ -252,7 +252,9 @@ function openImageModal(imageUrl, title, description) {
         modalDesc.innerText = description ? description.replace(/\\n/g, '\n') : 'Sin descripción adicional.';
     }
     
-    modal.classList.add('hidden');
+    // CORREGIDO: Removemos 'hidden' para mostrar el modal y aseguramos el flex
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 
@@ -260,7 +262,9 @@ function closeImageModal() {
     const modal = document.getElementById('imageModal');
     if (!modal) return;
 
+    // Ocultamos correctamente el modal
     modal.classList.add('hidden');
+    modal.style.display = 'none';
     document.body.style.overflow = '';
 }
 
