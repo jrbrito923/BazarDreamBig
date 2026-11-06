@@ -188,7 +188,7 @@ function renderProducts() {
 
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
-                <div class="relative cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${safeDesc}')">
+                <div class="relative cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${safeDesc}', ${product.id})">
                     <img 
                         src="${imageUrl}" 
                         alt="${product.name}" 
@@ -237,11 +237,12 @@ function renderProducts() {
     }).join('');
 }
 
-function openImageModal(imageUrl, title, description) {
+function openImageModal(imageUrl, title, description, productId = null) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     const modalTitle = document.getElementById('modalTitle');
     const modalDesc = document.getElementById('modalDescription');
+    const modalAddBtn = document.getElementById('modalAddToCartBtn');
 
     if (!modal || !modalImg) return;
 
@@ -251,11 +252,26 @@ function openImageModal(imageUrl, title, description) {
     if (modalDesc) {
         modalDesc.innerText = description ? description.replace(/\\n/g, '\n') : 'Sin descripción adicional.';
     }
+
+    // Configurar el botón de agregar al carrito dentro del modal
+    if (modalAddBtn) {
+        if (productId) {
+            modalAddBtn.style.display = 'flex';
+            modalAddBtn.onclick = function() {
+                addToCart(productId);
+                closeImageModal();
+            };
+        } else {
+            // Si por alguna razón no viene el ID (como en algunos casos del banner), ocultamos el botón o lo adaptamos
+            modalAddBtn.style.display = 'none';
+        }
+    }
     
-    // CORREGIDO: Removemos 'hidden' para mostrar el modal y aseguramos el flex
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+
+    if (window.lucide) lucide.createIcons();
 }
 
 function closeImageModal() {
@@ -518,11 +534,12 @@ function renderBannerItem() {
 
             // Intentamos usar openImageModal si existe, o abrimos el modal genérico de la tienda
             if (typeof openImageModal === 'function') {
-                openImageModal(
-                    p.image || 'https://via.placeholder.com/150', 
-                    p.name, 
-                    p.description || 'Sin descripción adicional.'
-                );
+               openImageModal(
+    currentProduct.image || 'https://via.placeholder.com/150', 
+    currentProduct.name, 
+    currentProduct.description || 'Sin descripción adicional.',
+    currentProduct.id
+);
             } else {
                 // Fallback directo por si acaso: busca elementos comunes de modal
                 const modal = document.getElementById('imageModal') || document.getElementById('productModal');

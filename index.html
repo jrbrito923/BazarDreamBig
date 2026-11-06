@@ -217,6 +217,7 @@
     </div>
 
     <!-- Modal de Vista Previa / Lightbox para Imágenes -->
+   <!-- Modal de Vista Previa / Lightbox para Imágenes -->
     <div id="imageModal" class="hidden fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300" onclick="closeImageModal()">
         <div class="relative max-w-3xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
             <!-- Botón para cerrar -->
@@ -225,13 +226,19 @@
             </button>
 
             <!-- Imagen Ampliada -->
-            <img id="modalImage" src="" alt="Vista Previa" class="max-h-[80vh] w-auto max-w-full rounded-2xl shadow-2xl object-contain border border-slate-700/50">
+            <img id="modalImage" src="" alt="Vista Previa" class="max-h-[70vh] w-auto max-w-full rounded-2xl shadow-2xl object-contain border border-slate-700/50">
 
             <!-- Título del producto en el modal -->
             <h3 id="modalTitle" class="text-white font-bold text-base sm:text-lg mt-3 text-center"></h3>
             
             <!-- Descripción completa del combo/producto con saltos de línea -->
-            <p id="modalDescription" class="text-slate-300 text-xs sm:text-sm mt-3 text-center whitespace-pre-line leading-relaxed max-w-lg"></p>
+            <p id="modalDescription" class="text-slate-300 text-xs sm:text-sm mt-2 text-center whitespace-pre-line leading-relaxed max-w-lg mb-4"></p>
+            
+            <!-- Botón para agregar al carrito desde el modal -->
+            <button id="modalAddToCartBtn" onclick="" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg transition duration-200 flex items-center gap-2 text-xs sm:text-sm">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                <span>Agregar al Pedido</span>
+            </button>
         </div>
     </div>
     <!-- Botón flotante de WhatsApp -->
