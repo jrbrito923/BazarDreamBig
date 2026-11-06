@@ -459,13 +459,13 @@ function initPromoBanner() {
         return;
     }
 
-    // Filtramos productos que no estén agotados
-    bannerProducts = products.filter(p => !p.badge || p.badge.toLowerCase() === 'Oferta');
-    
-    // Si todos están agotados, tomamos el catálogo completo
-    if (bannerProducts.length === 0) {
-        bannerProducts = products;
-    }
+    // Filtramos productos que esten en oferta
+  bannerProducts = products.filter(p => p.badge && p.badge.toLowerCase() === 'oferta');
+
+// Si no hay productos con etiqueta de oferta, tomamos el catálogo general de respaldo
+if (bannerProducts.length === 0 && products.length > 0) {
+    bannerProducts = products;
+}
 
     wrapper.style.display = 'block';
     
