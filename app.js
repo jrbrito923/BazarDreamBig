@@ -503,19 +503,31 @@ function renderBannerItem() {
     if (priceElem) priceElem.innerText = formatPrice(p.price, p.currency);
     
     // Configuración robusta del botón con depuración
+   // Configuración directa y garantizada del botón del banner
     if (actionBtn) {
         actionBtn.onclick = function(e) {
             e.preventDefault();
-            console.log("¡Clic detectado en el botón del banner!");
-            const currentProduct = bannerProducts[currentBannerIndex];
-            console.log("Producto actual:", currentProduct);
-            
-            if (currentProduct) {
+            const p = bannerProducts[currentBannerIndex];
+            if (!p) return;
+
+            console.log("Abriendo modal para:", p.name);
+
+            // Intentamos usar openImageModal si existe, o abrimos el modal genérico de la tienda
+            if (typeof openImageModal === 'function') {
                 openImageModal(
-                    currentProduct.image || 'https://via.placeholder.com/150', 
-                    currentProduct.name, 
-                    currentProduct.description || 'Sin descripción adicional.'
+                    p.image || 'https://via.placeholder.com/150', 
+                    p.name, 
+                    p.description || 'Sin descripción adicional.'
                 );
+            } else {
+                // Fallback directo por si acaso: busca elementos comunes de modal
+                const modal = document.getElementById('imageModal') || document.getElementById('productModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.style.display = 'flex';
+                } else {
+                    alert(`${p.name}\nPrecio: ${formatPrice(p.price, p.currency)}\n${p.description || ''}`);
+                }
             }
         };
     }
