@@ -494,17 +494,26 @@ function renderBannerItem() {
     if (imgElem) imgElem.src = p.image || 'https://via.placeholder.com/150';
     
     if (badgeElem) {
-        badgeElem.innerText = p.badge || 'Oferta';
-        badgeElem.className = `inline-block text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm ${p.badgeColor || 'bg-emerald-600'}`;
+        badgeElem.innerText = p.badge || 'Oferta Especial';
+        badgeElem.className = `inline-block bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-md animate-pulse`;
     }
     
     if (titleElem) titleElem.innerText = p.name;
     if (descElem) descElem.innerText = p.description || '¡Aprovecha esta recomendación especial de nuestro bazar!';
     if (priceElem) priceElem.innerText = formatPrice(p.price, p.currency);
     
-    const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/g, '\\n') : 'Sin descripción adicional.';
+    // Configuración segura del botón del banner (aquí está la solución)
     if (actionBtn) {
-        actionBtn.setAttribute('onclick', `openImageModal('${p.image}', '${escapeQuotes(p.name)}', '${safeDesc}')`);
+        actionBtn.onclick = function() {
+            const currentProduct = bannerProducts[currentBannerIndex];
+            if (currentProduct) {
+                openImageModal(
+                    currentProduct.image || 'https://via.placeholder.com/150', 
+                    currentProduct.name, 
+                    currentProduct.description || 'Sin descripción adicional.'
+                );
+            }
+        };
     }
 
     renderBannerDots();
