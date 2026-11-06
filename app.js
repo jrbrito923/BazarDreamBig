@@ -522,35 +522,25 @@ function renderBannerItem() {
     if (descElem) descElem.innerText = p.description || '¡Aprovecha esta recomendación especial de nuestro bazar!';
     if (priceElem) priceElem.innerText = formatPrice(p.price, p.currency);
     
-    // Configuración robusta del botón con depuración
-   // Configuración directa y garantizada del botón del banner
+  // Configuración moderna y directa del botón del banner
     if (actionBtn) {
-        actionBtn.onclick = function(e) {
+        // Clonamos el botón para eliminar cualquier evento anterior que pudiera estar bloqueándolo
+        const newActionBtn = actionBtn.cloneNode(true);
+        actionBtn.parentNode.replaceChild(newActionBtn, actionBtn);
+
+        newActionBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const p = bannerProducts[currentBannerIndex];
-            if (!p) return;
-
-            console.log("Abriendo modal para:", p.name);
-
-            // Intentamos usar openImageModal si existe, o abrimos el modal genérico de la tienda
-            if (typeof openImageModal === 'function') {
-               openImageModal(
-    currentProduct.image || 'https://via.placeholder.com/150', 
-    currentProduct.name, 
-    currentProduct.description || 'Sin descripción adicional.',
-    currentProduct.id
-);
-            } else {
-                // Fallback directo por si acaso: busca elementos comunes de modal
-                const modal = document.getElementById('imageModal') || document.getElementById('productModal');
-                if (modal) {
-                    modal.classList.remove('hidden');
-                    modal.style.display = 'flex';
-                } else {
-                    alert(`${p.name}\nPrecio: ${formatPrice(p.price, p.currency)}\n${p.description || ''}`);
-                }
+            const currentProduct = bannerProducts[currentBannerIndex];
+            if (currentProduct) {
+                console.log("Abriendo modal desde el banner para:", currentProduct.name);
+                openImageModal(
+                    currentProduct.image || 'https://via.placeholder.com/150', 
+                    currentProduct.name, 
+                    currentProduct.description || 'Sin descripción adicional.',
+                    currentProduct.id
+                );
             }
-        };
+        });
     }
 
     renderBannerDots();
