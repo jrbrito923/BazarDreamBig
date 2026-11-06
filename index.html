@@ -83,37 +83,48 @@
     <!-- Contenido Principal -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-<!-- Banner Rotativo de Productos Destacados -->
+<!-- Banner Rotativo de Ofertas Mejorado -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
     <div id="promoBannerWrapper" class="transition-all duration-500">
-        <div id="promoBanner" class="relative bg-gradient-to-r from-emerald-800 to-slate-900 rounded-3xl overflow-hidden shadow-lg text-white p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 min-h-[220px]">
+        <div id="promoBanner" class="relative bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 rounded-3xl overflow-hidden shadow-2xl text-white p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 min-h-[220px] border border-emerald-500/20">
             
-            <!-- Elemento decorativo de fondo -->
-            <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <!-- Elementos decorativos de fondo -->
+            <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -top-10 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Botón Anterior (Izquierda) -->
+            <button onclick="prevBannerSlide()" class="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition z-20 shadow-md">
+                ❮
+            </button>
 
             <!-- Información del Producto en el Banner -->
-            <div class="z-10 flex-1 text-center sm:text-left">
-                <span id="bannerBadge" class="inline-block bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm">
-                    Destacado
+            <div class="z-10 flex-1 text-center sm:text-left px-4 sm:px-6">
+                <span id="bannerBadge" class="inline-block bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-md animate-pulse">
+                    Oferta Especial
                 </span>
-                <h2 id="bannerTitle" class="text-xl sm:text-2xl font-black mb-2 leading-tight">Cargando destacados...</h2>
+                <h2 id="bannerTitle" class="text-xl sm:text-2xl font-black mb-2 leading-tight">Cargando ofertas...</h2>
                 <p id="bannerDesc" class="text-xs sm:text-sm text-slate-300 line-clamp-2 mb-4 max-w-lg"></p>
-             <!--  <div class="flex items-center justify-center sm:justify-start gap-4">
+                <div class="flex items-center justify-center sm:justify-start gap-4">
                     <span id="bannerPrice" class="text-lg sm:text-xl font-black text-emerald-400"></span>
-                    <button id="bannerActionBtn" onclick="" class="bg-white text-slate-900 hover:bg-emerald-50 font-bold px-4 py-2 rounded-xl text-xs shadow transition">
-                        Ver Producto / Comprar
+                    <button id="bannerActionBtn" onclick="" class="bg-white hover:bg-emerald-50 text-slate-900 font-bold px-4 py-2 rounded-xl text-xs shadow-lg transition transform hover:scale-105">
+                        Ver Combo / Comprar
                     </button>
-                </div>   -->
+                </div>
             </div>
 
             <!-- Imagen del Producto en el Banner -->
             <div class="z-10 relative flex-shrink-0">
-                <img id="bannerImg" src="" alt="Banner Product" class="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover shadow-md border-2 border-white/20 bg-slate-800" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
+                <img id="bannerImg" src="" alt="Banner Product" class="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover shadow-xl border-2 border-white/20 bg-slate-800 transition-transform duration-500 hover:scale-105" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
             </div>
 
-            <!-- Botones de navegación manual opcionales -->
-            <div class="absolute bottom-3 right-4 flex gap-1.5 z-20" id="bannerDots">
-                <!-- Los círculos indicadores se generan dinámicamente -->
+            <!-- Botón Siguiente (Derecha) -->
+            <button onclick="nextBannerSlide()" class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-emerald-600 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition z-20 shadow-md">
+                ❯
+            </button>
+
+            <!-- Círculos indicadores abajo -->
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20" id="bannerDots">
+                <!-- Los puntos se generan dinámicamente -->
             </div>
         </div>
     </div>

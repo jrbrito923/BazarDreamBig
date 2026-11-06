@@ -539,3 +539,23 @@ function startBannerSlider() {
 function resetBannerTimer() {
     startBannerSlider();
 }
+// Función para retroceder al banner anterior manualmente
+function prevBannerSlide() {
+    if (bannerProducts.length === 0) return;
+    currentBannerIndex = (currentBannerIndex - 1 + bannerProducts.length) % bannerProducts.length;
+    renderBannerItem();
+    resetBannerTimer();
+}
+
+// Pausar rotación automática al colocar el cursor encima del banner
+document.addEventListener('DOMContentLoaded', () => {
+    const promoBanner = document.getElementById('promoBanner');
+    if (promoBanner) {
+        promoBanner.addEventListener('mouseenter', () => {
+            if (bannerInterval) clearInterval(bannerInterval);
+        });
+        promoBanner.addEventListener('mouseleave', () => {
+            startBannerSlider();
+        });
+    }
+});
