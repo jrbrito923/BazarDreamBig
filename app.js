@@ -454,8 +454,8 @@ function initPromoBanner() {
     const wrapper = document.getElementById('promoBannerWrapper');
     if (!wrapper) return;
 
-    // Filtramos los productos que tengan la etiqueta 'oferta' (sin importar mayúsculas o minúsculas)
-    bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'oferta');
+    // Filtro corregido que acepta 'Oferta', 'oferta' u 'OFERTA'
+bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'oferta');
 
     console.log("Productos en oferta encontrados para el banner:", bannerProducts);
 
