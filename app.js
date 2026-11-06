@@ -460,7 +460,7 @@ function initPromoBanner() {
     }
 
     // Filtramos productos que no estén agotados
-    bannerProducts = products.filter(p => !p.badge || p.badge.toLowerCase() == 'Oferta');
+    bannerProducts = products.filter(p => !p.badge || p.badge.toLowerCase() === 'Oferta');
     
     // Si todos están agotados, tomamos el catálogo completo
     if (bannerProducts.length === 0) {
