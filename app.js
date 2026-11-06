@@ -454,26 +454,27 @@ function initPromoBanner() {
     const wrapper = document.getElementById('promoBannerWrapper');
     if (!wrapper) return;
 
-    if (!products || products.length === 0) {
+    // 1. Diagnóstico en consola: Ver qué badges tienen los productos cargados
+    console.log("--- DIAGNÓSTICO DEL BANNER ---");
+    console.log("Total de productos cargados:", products.length);
+    console.log("Badges encontrados en la BD:", products.map(p => p.badge));
+
+    // 2. Filtrar estrictamente productos que tengan la etiqueta 'oferta' (ignorando mayúsculas y espacios)
+    bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'oferta');
+
+    console.log("Productos filtrados para el banner (solo Oferta):", bannerProducts);
+
+    // 3. Si no hay productos con la etiqueta 'oferta', ocultar el banner (sin fallback)
+    if (bannerProducts.length === 0) {
+        console.warn("No se encontraron productos con badge 'oferta'. Ocultando banner.");
         wrapper.style.display = 'none';
         return;
     }
 
-    // Filtramos productos que esten en oferta
-  bannerProducts = products.filter(p => p.badge && p.badge.toLowerCase() === 'oferta');
-
-// Si no hay productos con etiqueta de oferta, tomamos el catálogo general de respaldo
-if (bannerProducts.length === 0 && products.length > 0) {
-    bannerProducts = products;
-}
-
     wrapper.style.display = 'block';
-    
-    if (bannerProducts.length > 0) {
-        currentBannerIndex = 0;
-        renderBannerItem();
-        startBannerSlider();
-    }
+    currentBannerIndex = 0;
+    renderBannerItem();
+    startBannerSlider();
 }
 
 function renderBannerItem() {
