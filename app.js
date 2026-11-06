@@ -460,7 +460,7 @@ function initPromoBanner() {
     console.log("Badges encontrados en la BD:", products.map(p => p.badge));
 
     // 2. Filtrar estrictamente productos que tengan la etiqueta 'oferta' (ignorando mayúsculas y espacios)
-    bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'oferta');
+    bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'Oferta');
 
     console.log("Productos filtrados para el banner (solo Oferta):", bannerProducts);
 
