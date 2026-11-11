@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin - BAZAR Dream Big</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Reemplaza el script de Tailwind por el CDN oficial optimizado -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body class="bg-slate-100 min-h-screen p-4 sm:p-6">
 
     <!-- Modal de Autenticación Simple -->
     <div id="loginModal" class="fixed inset-0 bg-slate-900/80 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
             <h2 class="text-xl font-bold text-slate-800 mb-4 text-center">Acceso Administrador</h2>
-            <input type="password" id="adminPass" placeholder="Contraseña de acceso" class="w-full px-4 py-2 border rounded-xl mb-4 text-sm outline-none focus:border-emerald-600">
-            <button id="loginBtn" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition">Entrar</button>
+            <input type="password" id="adminPass" placeholder="Contraseña de acceso"
+                class="w-full px-4 py-2 border rounded-xl mb-4 text-sm outline-none focus:border-emerald-600">
+            <button id="loginBtn"
+                class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition">Entrar</button>
         </div>
     </div>
 
@@ -22,15 +27,19 @@
     <div id="adminPanel" class="max-w-4xl mx-auto hidden">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-black text-slate-900">Panel Admin - BAZAR Dream Big</h1>
-            <a href="index.html" class="text-xs bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl hover:bg-slate-300">Ir a la Tienda (index.html)</a>
+            <a href="index.html"
+                class="text-xs bg-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl hover:bg-slate-300">Ir a la
+                Tienda (index.html)</a>
         </div>
 
         <!-- SECCIÓN 1: Gestión de Categorías -->
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-8">
             <h2 class="font-bold text-slate-800 text-lg mb-4">Gestión de Categorías</h2>
             <form id="categoryForm" onsubmit="saveCategory(event)" class="flex gap-3 mb-4">
-                <input type="text" id="catName" placeholder="Nombre de categoría (ej. 🥖 Panadería)" required class="flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                <button type="submit" id="catSubmitBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
+                <input type="text" id="catName" placeholder="Nombre de categoría (ej. 🥖 Panadería)" required
+                    class="flex-1 px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                <button type="submit" id="catSubmitBtn"
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition">
                     + Agregar Categoría
                 </button>
             </form>
@@ -56,7 +65,8 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Precio *</label>
-                        <input type="number" step="0.01" id="prodPrice" required class="w-full px-3 py-2 border rounded-xl text-sm">
+                        <input type="number" step="0.01" id="prodPrice" required
+                            class="w-full px-3 py-2 border rounded-xl text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Moneda *</label>
@@ -77,12 +87,14 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 mb-1">Imagen del Producto *</label>
-                        <input type="file" id="prodImageFile" accept="image/*" required onchange="previewImage(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                        <input type="file" id="prodImageFile" accept="image/*" required onchange="previewImage(event)"
+                            class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                     </div>
                 </div>
 
                 <!-- Contenedor de Vista Previa de la Imagen -->
-                <div id="imagePreviewContainer" class="hidden flex items-center gap-3 p-3 bg-slate-50 border rounded-xl">
+                <div id="imagePreviewContainer"
+                    class="hidden flex items-center gap-3 p-3 bg-slate-50 border rounded-xl">
                     <img id="imagePreview" src="" alt="Vista previa" class="w-16 h-16 rounded-lg object-cover border">
                     <div>
                         <p class="text-xs font-bold text-slate-700">Vista previa de la imagen</p>
@@ -92,10 +104,12 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Descripción</label>
-                    <textarea id="prodDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm"></textarea>
+                    <textarea id="prodDescription" rows="2"
+                        class="w-full px-3 py-2 border rounded-xl text-sm"></textarea>
                 </div>
 
-                <button type="submit" id="submitBtn" class="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow transition duration-200">
+                <button type="submit" id="submitBtn"
+                    class="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow transition duration-200">
                     Guardar Producto en Supabase
                 </button>
             </form>
@@ -105,7 +119,9 @@
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
                 <h2 class="font-bold text-slate-800 text-lg">Inventario Actual</h2>
-                <input type="text" id="adminSearchInput" oninput="filterAdminProducts()" placeholder="Buscar en el inventario..." class="w-full sm:w-64 px-3 py-1.5 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="adminSearchInput" oninput="filterAdminProducts()"
+                    placeholder="Buscar en el inventario..."
+                    class="w-full sm:w-64 px-3 py-1.5 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500">
             </div>
             <div id="adminProductList" class="space-y-3">
                 <p class="text-xs text-slate-400">Cargando productos...</p>
@@ -114,26 +130,30 @@
     </div>
 
     <!-- Modal de Edición de Producto -->
-    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div id="editModal"
+        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-100">
             <h3 class="text-lg font-bold text-slate-800 mb-4">Editar Producto</h3>
-            
+
             <form id="editForm" onsubmit="saveEditedProduct(event)" class="space-y-4">
                 <input type="hidden" id="editProdId">
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Producto</label>
-                    <input type="text" id="editProdName" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="editProdName" required
+                        class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Precio</label>
-                        <input type="number" step="0.01" id="editProdPrice" required class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="number" step="0.01" id="editProdPrice" required
+                            class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Moneda</label>
-                        <select id="editProdCurrency" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <select id="editProdCurrency"
+                            class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                             <option value="CUP">CUP</option>
                             <option value="USD">USD</option>
                         </select>
@@ -142,20 +162,24 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
-                    <select id="editProdCategory" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <select id="editProdCategory"
+                        class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción</label>
-                    <textarea id="editProdDescription" rows="2" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                    <textarea id="editProdDescription" rows="2"
+                        class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
                 </div>
 
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeEditModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-200 transition">
+                    <button type="button" onclick="closeEditModal()"
+                        class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-200 transition">
                         Cancelar
                     </button>
-                    <button type="submit" id="saveEditBtn" class="flex-1 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 transition">
+                    <button type="submit" id="saveEditBtn"
+                        class="flex-1 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 transition">
                         Guardar Cambios
                     </button>
                 </div>
@@ -207,7 +231,7 @@
         async function loadCategories() {
             if (!window.spClient) return;
             const { data, error } = await window.spClient.from('categories').select('*');
-            
+
             if (error) {
                 console.error("Error cargando categorías:", error.message);
                 return;
@@ -221,7 +245,7 @@
         function renderCategoryOptions() {
             const selects = [document.getElementById('prodCategory'), document.getElementById('editProdCategory')];
             const optionsHTML = categoriesCache.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            
+
             selects.forEach(select => {
                 if (select) select.innerHTML = optionsHTML;
             });
@@ -562,4 +586,5 @@
         }
     </script>
 </body>
+
 </html>

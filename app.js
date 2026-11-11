@@ -21,7 +21,7 @@ async function fetchCategoriesFromSupabase() {
 }
 
 // Configuracion del cliente Supabase
-const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co"; 
+const SUPABASE_URL = "https://omvgderozucdkctjivgx.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DZGpJPCufNaB7PBCRwZtpg_4op3Srsx";
 
 window.spClient = null;
@@ -61,7 +61,7 @@ async function fetchProductsFromSupabase() {
             }));
 
             renderProducts();
-            initPromoBanner(); 
+            initPromoBanner();
         }
     } catch (err) {
         console.error("Error cargando productos desde Supabase:", err.message);
@@ -133,11 +133,10 @@ function renderCategories() {
 
     container.innerHTML = categories.map(cat => `
         <button onclick="selectCategory('${cat.id}')" 
-            class="px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                currentCategory === cat.id 
-                ? 'bg-emerald-600 text-white shadow-md font-semibold' 
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }">
+            class="px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${currentCategory === cat.id
+            ? 'bg-emerald-600 text-white shadow-md font-semibold'
+            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        }">
             ${cat.name}
         </button>
     `).join('');
@@ -174,7 +173,7 @@ function renderProducts() {
 
     grid.innerHTML = filtered.map(product => {
         let imageUrl = product.image;
-        
+
         if (!imageUrl) {
             imageUrl = 'https://via.placeholder.com/300?text=Sin+Imagen';
         } else if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
@@ -183,7 +182,7 @@ function renderProducts() {
 
         const isAgotado = product.badge && product.badge.toLowerCase() === 'agotado';
         const badgeColor = product.badgeColor || (isAgotado ? 'bg-red-500' : 'bg-emerald-600');
-        
+
         const safeDesc = product.description ? product.description.replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/(\r\n|\n|\r)/g, '\\n') : 'Sin descripción adicional.';
 
         return `
@@ -248,7 +247,7 @@ function openImageModal(imageUrl, title, description, productId = null) {
 
     modalImg.src = imageUrl;
     if (modalTitle) modalTitle.innerText = title || '';
-    
+
     if (modalDesc) {
         modalDesc.innerText = description ? description.replace(/\\n/g, '\n') : 'Sin descripción adicional.';
     }
@@ -257,7 +256,7 @@ function openImageModal(imageUrl, title, description, productId = null) {
     if (modalAddBtn) {
         if (productId) {
             modalAddBtn.style.display = 'flex';
-            modalAddBtn.onclick = function() {
+            modalAddBtn.onclick = function () {
                 addToCart(productId);
                 closeImageModal();
             };
@@ -266,7 +265,7 @@ function openImageModal(imageUrl, title, description, productId = null) {
             modalAddBtn.style.display = 'none';
         }
     }
-    
+
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -317,7 +316,7 @@ function updateQuantity(productId, change) {
 
 function updateCartUI() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    
+
     const totalCUP = cart.filter(i => i.currency === 'CUP').reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const totalUSD = cart.filter(i => i.currency === 'USD').reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -453,7 +452,7 @@ async function updateVisitCount() {
         const key = 'bazar_drem_big_visitas_2026';
         const response = await fetch(`https://countapi.mileshilliard.com/api/v1/hit/${key}`);
         const data = await response.json();
-        
+
         const countElement = document.getElementById('visitCount');
         if (countElement && data.value) {
             countElement.textContent = Number(data.value).toLocaleString();
@@ -475,7 +474,7 @@ function initPromoBanner() {
     if (!wrapper) return;
 
     // Filtro corregido que acepta 'Oferta', 'oferta' u 'OFERTA'
-bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'oferta');
+    bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLowerCase() === 'oferta');
 
     console.log("Productos en oferta encontrados para el banner:", bannerProducts);
 
@@ -497,7 +496,7 @@ bannerProducts = products.filter(p => p.badge && p.badge.toString().trim().toLow
 
 function renderBannerItem() {
     if (bannerProducts.length === 0) return;
-    
+
     if (currentBannerIndex >= bannerProducts.length) {
         currentBannerIndex = 0;
     }
@@ -512,17 +511,17 @@ function renderBannerItem() {
     const actionBtn = document.getElementById('bannerActionBtn');
 
     if (imgElem) imgElem.src = p.image || 'https://via.placeholder.com/150';
-    
+
     if (badgeElem) {
         badgeElem.innerText = p.badge || 'Oferta Especial';
         badgeElem.className = `inline-block bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-md animate-pulse`;
     }
-    
+
     if (titleElem) titleElem.innerText = p.name;
     if (descElem) descElem.innerText = p.description || '¡Aprovecha esta recomendación especial de nuestro bazar!';
     if (priceElem) priceElem.innerText = formatPrice(p.price, p.currency);
-    
-  // Configuración moderna y directa del botón del banner
+
+    // Configuración moderna y directa del botón del banner
     if (actionBtn) {
         // Clonamos el botón para eliminar cualquier evento anterior que pudiera estar bloqueándolo
         const newActionBtn = actionBtn.cloneNode(true);
@@ -534,8 +533,8 @@ function renderBannerItem() {
             if (currentProduct) {
                 console.log("Abriendo modal desde el banner para:", currentProduct.name);
                 openImageModal(
-                    currentProduct.image || 'https://via.placeholder.com/150', 
-                    currentProduct.name, 
+                    currentProduct.image || 'https://via.placeholder.com/150',
+                    currentProduct.name,
                     currentProduct.description || 'Sin descripción adicional.',
                     currentProduct.id
                 );
@@ -569,7 +568,7 @@ function nextBannerSlide() {
 
 function startBannerSlider() {
     if (bannerInterval) clearInterval(bannerInterval);
-    bannerInterval = setInterval(nextBannerSlide, 5000); 
+    bannerInterval = setInterval(nextBannerSlide, 5000);
 }
 
 function resetBannerTimer() {
