@@ -162,6 +162,12 @@ function renderProducts() {
         return matchCategory && matchSearch;
     });
 
+    // Actualizar el contador de productos en pantalla de forma dinámica
+    const countEl = document.getElementById('productCount');
+    if (countEl) {
+        countEl.textContent = `Mostrando ${filtered.length} productos`;
+    }
+
     if (filtered.length === 0) {
         grid.innerHTML = `
             <div class="col-span-full text-center py-12 text-slate-400">
@@ -202,7 +208,7 @@ function renderProducts() {
                 </div>
 
                 <div class="p-4 flex-1 flex flex-col justify-between">
-                    <div class="cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${safeDesc}')">
+                    <div class="cursor-pointer" onclick="openImageModal('${imageUrl}', '${escapeQuotes(product.name)}', '${safeDesc}', ${product.id})">
                         <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-snug mb-1">
                             ${product.name}
                         </h3>
@@ -453,7 +459,7 @@ async function updateVisitCount() {
         const response = await fetch(`https://countapi.mileshilliard.com/api/v1/hit/${key}`);
         if (!response.ok) throw new Error('Servicio de visitas no disponible');
         const data = await response.json();
-        
+
         const countElement = document.getElementById('visitCount');
         if (countElement && data.value) {
             countElement.textContent = Number(data.value).toLocaleString();
@@ -510,6 +516,10 @@ function renderBannerItem() {
     const descElem = document.getElementById('bannerDesc');
     const priceElem = document.getElementById('bannerPrice');
     const actionBtn = document.getElementById('bannerActionBtn');
+    const counterEl = document.getElementById('bannerCounter');
+    if (counterEl && bannerProducts.length > 0) {
+        counterEl.textContent = `${currentBannerIndex + 1} / ${bannerProducts.length}`;
+    }
 
     if (imgElem) imgElem.src = p.image || 'https://via.placeholder.com/150';
 

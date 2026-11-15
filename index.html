@@ -101,37 +101,38 @@
     <!-- Contenido Principal -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-1">
 
-      <!-- Banner Rotativo de Ofertas - Opción 3 (Ultra Compacto) -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-2">
+<!-- Banner Rotativo de Ofertas - Versión Limpia y Alineada -->
+<div class="w-full mb-2">
     <div id="promoBannerWrapper" class="transition-all duration-500">
-        <div id="promoBanner" class="relative bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 rounded-2xl overflow-hidden shadow-lg text-white p-3.5 sm:p-6 flex items-center justify-between gap-3 min-h-[105px] sm:min-h-[220px] border border-emerald-500/20">
+        <div id="promoBanner" class="relative bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 rounded-2xl overflow-hidden shadow-md text-white p-3.5 sm:p-6 flex items-center justify-between gap-3 min-h-[115px] sm:min-h-[210px] border border-emerald-500/20">
             
-            <!-- Elementos decorativos sutiles de fondo -->
-            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-            <!-- Información del Producto en el Banner -->
-            <div class="z-10 flex-1 text-left pl-1 sm:pl-4">
-                <span id="bannerBadge" class="inline-block bg-red-600 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mb-1 shadow-sm">
-                    Oferta
-                </span>
-                <h2 id="bannerTitle" class="text-xs sm:text-2xl font-black mb-1 leading-tight line-clamp-1 sm:line-clamp-2">Cargando ofertas...</h2>
+            <!-- Información del Producto -->
+            <div class="z-10 flex-1 text-left">
+                <div class="flex items-center gap-2 mb-1">
+                    <span id="bannerBadge" class="inline-block bg-red-600 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+                        Oferta
+                    </span>
+                    <!-- Contador limpio en lugar de 25 bolitas -->
+                    <span id="bannerCounter" class="text-[10px] text-slate-400 font-medium"></span>
+                </div>
+                
+                <h2 id="bannerTitle" class="text-sm sm:text-2xl font-black mb-1.5 leading-tight line-clamp-1 sm:line-clamp-2">Cargando ofertas...</h2>
+                
                 <div class="flex items-center gap-3">
-                    <span id="bannerPrice" class="text-xs sm:text-xl font-black text-emerald-400"></span>
-                    <button id="bannerActionBtn" class="bg-white hover:bg-emerald-50 text-slate-900 font-bold px-2.5 py-1 sm:px-4 sm:py-2 rounded-lg text-[10px] sm:text-xs shadow transition transform hover:scale-105">
+                    <span id="bannerPrice" class="text-sm sm:text-xl font-black text-emerald-400"></span>
+                    <button id="bannerActionBtn" class="bg-white hover:bg-emerald-50 text-slate-900 font-bold px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-[11px] sm:text-xs shadow transition transform hover:scale-105">
                         Ver / Comprar
                     </button>
                 </div>
             </div>
 
-            <!-- Imagen del Producto en el Banner (Miniatura cuadrada en móvil, más grande en PC) -->
+            <!-- Imagen del Producto -->
             <div class="z-10 relative flex-shrink-0">
-                <img id="bannerImg" src="" alt="Banner Product" class="w-16 h-16 sm:w-40 sm:h-40 rounded-xl object-cover shadow-md border border-white/20 bg-slate-800" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
+                <img id="bannerImg" src="" alt="Banner Product" class="w-20 h-20 sm:w-40 sm:h-40 rounded-xl object-cover shadow-md border border-white/20 bg-slate-800" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
             </div>
 
-            <!-- Círculos indicadores abajo (en móvil se ocultan las flechas laterales para ganar espacio y se usan solo los puntos) -->
-            <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1 z-20" id="bannerDots">
-                <!-- Los puntos se generan dinámicamente -->
-            </div>
+            <!-- Puntos ocultos en móvil para evitar saturación, visibles solo en PC si hay pocos -->
+            <div class="hidden sm:flex absolute bottom-2 left-1/2 -translate-x-1/2 gap-1.5 z-20" id="bannerDots"></div>
         </div>
     </div>
 </div>
