@@ -97,11 +97,10 @@
             </div>
         </div>
     </header>
-<!-- Banner Rotativo de Ofertas (De borde a borde en móvil, centrado y con esquinas redondeadas en PC) -->
-<div class="w-full sm:max-w-7xl sm:mx-auto sm:px-4 lg:px-8 mb-0">
+<!-- Banner Rotativo de Ofertas (Imagen con mayor tamaño) -->
+<div class="w-full sm:max-w-7xl sm:mx-auto sm:px-4 lg:px-8 mb-3">
     <div id="promoBannerWrapper" class="transition-all duration-500">
-        <!-- sm:rounded-3xl y sm:border añaden esquinas redondeadas y bordes solo en PC, en móvil ocupa todo el ancho plano -->
-        <div id="promoBanner" class="relative bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 sm:rounded-3xl overflow-hidden shadow-md text-white px-4 py-3.5 sm:p-6 flex items-center justify-between gap-3 min-h-[115px] sm:min-h-[210px] border-y sm:border border-emerald-500/20">
+        <div id="promoBanner" class="relative bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 sm:rounded-3xl overflow-hidden shadow-md text-white px-4 py-3.5 sm:p-6 flex items-center justify-between gap-3 min-h-[125px] sm:min-h-[220px] border-y sm:border border-emerald-500/20">
             
             <!-- Información del Producto -->
             <div class="z-10 flex-1 text-left">
@@ -122,12 +121,12 @@
                 </div>
             </div>
 
-            <!-- Imagen del Producto -->
+            <!-- Imagen del Producto (Aumentada de w-20 a w-24 en móvil, y de w-40 a w-48 en PC) -->
             <div class="z-10 relative flex-shrink-0">
-                <img id="bannerImg" src="" alt="Banner Product" class="w-20 h-20 sm:w-40 sm:h-40 rounded-xl object-cover shadow-md border border-white/20 bg-slate-800" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
+                <img id="bannerImg" src="" alt="Banner Product" class="w-24 h-24 sm:w-48 sm:h-48 rounded-xl object-cover shadow-lg border border-white/20 bg-slate-800" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
             </div>
 
-            <!-- Puntos indicadores (Ocultos en móvil para limpiar espacio, visibles en PC) -->
+            <!-- Puntos indicadores -->
             <div class="hidden sm:flex absolute bottom-2 left-1/2 -translate-x-1/2 gap-1.5 z-20" id="bannerDots"></div>
         </div>
     </div>
